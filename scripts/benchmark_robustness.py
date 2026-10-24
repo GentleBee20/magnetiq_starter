@@ -14,14 +14,12 @@ from pathlib import Path
 import mlflow
 import numpy as np
 
-from scripts.benchmark_nuisance import center_error
-
 from magnetiq.data.odmr import OdmrSpectrum
 from magnetiq.processing.nuisance import fit_sinusoidal_nuisance
 from magnetiq.processing.period_refinement import conservative_selection, refine_period
 from magnetiq.processing.resonance import evaluate_model, fit_spectrum
 from magnetiq.tracking import EXPERIMENT, git_revision, new_run_location
-
+from scripts.benchmark_nuisance import center_error
 
 KINDS = ("clean", "single_sine", "two_tone", "chirp", "harmonics", "curved_baseline")
 
