@@ -619,3 +619,18 @@ development/held-out comparisons, and tests. See
 penalty of 8 is exploratory rather than a calibrated multiple-period
 search correction. No benchmark outcome is claimed until local or CI
 verification and held-out execution; production fitting/QC unchanged.
+
+## Phase 2 — Generalization beyond sinusoidal interference
+
+After merging PR #2 into `main`, began a separate research branch
+`feat/odmr-robustness`. Added reproducible, paired synthetic challenges:
+clean, single-sine, two-tone, frequency chirp, harmonics and curved
+baseline, each scored under an independent shifted regime. The
+benchmark compares true center-estimation error of baseline,
+fixed-grid nuisance, continuous nuisance and conservatively selected
+fits. It writes new MLflow artifacts and has reproducibility tests.
+See [the Phase 2 study](ROBUSTNESS_STUDY.md).
+
+**Evidence status:** implementation committed; CI and experiment results
+not yet verified. Do not conclude generalization or alter production
+QC based solely on this implementation.
