@@ -31,6 +31,29 @@ global normalized fitting error than the first, yet shows excessive
 residual correlation and resonance-local mismatch. A low aggregate fit
 error alone does not establish an adequate spectral model.
 
+### Representative diagnostic figures
+
+The following plots come from the public experimental dataset and show
+measured normalized contrast, the selected fit, residuals and the
+provisional evaluation criteria. Shaded resonance windows mark regions
+used for inspection; they are **not confidence intervals**.
+
+| Fit passes provisional checks | Residual structure triggers review |
+| --- | --- |
+| ![Double-Lorentzian spectrum passing diagnostic checks](docs/figures/odmr_fit_ok.png) | ![Double-Lorentzian spectrum with structured and local residual mismatch](docs/figures/odmr_structured_residuals.png) |
+| **Hole2 NV1** — normalized RMSE 0.0607; no triggered warning. | **Hole2 NV3** — normalized RMSE 0.0588; lag-1 correlation 0.712 and local RMSE ratio 3.31 trigger review. |
+
+![Spectrum reviewed because a fitted linewidth is near a parameter constraint](docs/figures/odmr_linewidth_constraint.png)
+
+**A different failure mode — Hole3 NV6 (2023-05-08 08:45):**
+The selected double-Lorentzian fit is flagged
+`linewidth_near_constraint`. A visually plausible curve does not rule
+out an unstable or poorly identifiable narrow component; frequency
+sampling and fitting bounds warrant inspection.
+
+These are **fit-quality diagnostics**, not calibration, physical defect
+identification or measured model-classification accuracy.
+
 **View the actual experimental figures:** Run `magnetiq analyze` on
 the separately downloaded archive, open the generated
 `measurement_report.html`, and select **View fit plot** on rows
