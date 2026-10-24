@@ -42,9 +42,7 @@ def read_measurement(data: bytes) -> np.ndarray:
     text = data.decode("utf-8-sig")
     reader = csv.reader(io.StringIO(text))
     header = next(reader, None)
-    if header is None or [v.strip() for v in header] != [
-        "tau [ns]", "Data", "Fit", "Envelope"
-    ]:
+    if header is None or [v.strip() for v in header] != ["tau [ns]", "Data", "Fit", "Envelope"]:
         raise ValueError("expected columns tau [ns],Data,Fit,Envelope")
     try:
         values = np.array(
@@ -82,7 +80,13 @@ def analyze(source: str, values: np.ndarray) -> CoherenceResult:
     local_ratio = float(max(np.sqrt(np.mean(chunk**2)) / global_rms for chunk in chunks))
     name = Path(source).name.lower()
     experiment = "ramsey" if "ramsey" in name else "spin_echo" if "spinecho" in name else "unknown"
-    region = "no_hole" if "no hole region" in source.lower() else "hole" if "hole region" in source.lower() else "unknown"
+    region = (
+        "no_hole"
+        if "no hole region" in source.lower()
+        else "hole"
+        if "hole region" in source.lower()
+        else "unknown"
+    )
     warnings = []
     if not math.isfinite(nrmse):
         warnings.append("undefined_signal_scale")

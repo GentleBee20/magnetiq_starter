@@ -43,7 +43,9 @@ def run(archive: Path, output_dir: Path) -> int:
         plt.close(fig)
     if not results:
         raise ValueError("No valid spin-coherence text files found in archive")
-    with (output_dir / "coherence_diagnostics.csv").open("w", newline="", encoding="utf-8") as stream:
+    with (output_dir / "coherence_diagnostics.csv").open(
+        "w", newline="", encoding="utf-8"
+    ) as stream:
         rows = [result.as_row() for result in results]
         writer = csv.DictWriter(stream, fieldnames=list(rows[0]))
         writer.writeheader()

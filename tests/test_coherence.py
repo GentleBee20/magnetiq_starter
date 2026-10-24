@@ -38,16 +38,14 @@ def test_reject_malformed():
         read_measurement(b"time,y\n0,1\n")
     with pytest.raises(ValueError, match="strictly increasing"):
         read_measurement(
-            b"tau [ns],Data,Fit,Envelope\n"
-            b"0,1,1,1\n1,2,2,2\n2,3,3,3\n2,4,4,4\n4,5,5,5\n"
+            b"tau [ns],Data,Fit,Envelope\n0,1,1,1\n1,2,2,2\n2,3,3,3\n2,4,4,4\n4,5,5,5\n"
         )
 
 
 def test_archive_reporting(tmp_path):
     archive = tmp_path / "sample.zip"
     nested_path = (
-        "Data/Spin coherence/Hole Region/NV 1/"
-        "10-24-2022 19-04_Ramsey_2.7527_GHz_0_dBm_NV1.txt"
+        "Data/Spin coherence/Hole Region/NV 1/10-24-2022 19-04_Ramsey_2.7527_GHz_0_dBm_NV1.txt"
     )
     with zipfile.ZipFile(archive, "w") as stream:
         stream.writestr(nested_path, _measurement())
