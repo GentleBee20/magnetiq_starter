@@ -1,7 +1,7 @@
 """Tune on one synthetic seed; evaluate once on an independent held-out seed.
 
 This evaluates a proposed *escalation to FIT_FAILED*, never changes production QC.
-Run from repository root: python scripts/validate_adequacy_policy.py
+Run from repository root: python -m scripts.validate_adequacy_policy
 """
 
 from __future__ import annotations
