@@ -79,7 +79,9 @@ def evaluate(
         if len(centers) == 2:
             estimated = sorted(centers)
             truth = sorted((center_1, center_2))
-            maximum_error_mhz = max(abs(a - b) for a, b in zip(estimated, truth, strict=True)) * 1000
+            maximum_error_mhz = (
+                max(abs(a - b) for a, b in zip(estimated, truth, strict=True)) * 1000
+            )
         else:
             maximum_error_mhz = float("nan")
         accurate = bool(np.isfinite(maximum_error_mhz) and maximum_error_mhz <= tolerance_mhz)
