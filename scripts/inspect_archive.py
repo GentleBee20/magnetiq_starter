@@ -5,13 +5,13 @@ import csv
 import json
 from collections import Counter
 from pathlib import Path
-from zipfile import BadZipFile, ZipFile
+from zipfile import BadZipFile, ZipFile, is_zipfile
 
 
 def inspect(path: Path, out_dir: Path) -> dict:
     if not path.is_file():
         raise FileNotFoundError(f"Archive not found: {path}")
-    if not ZipFile.is_zipfile(path):
+    if not is_zipfile(path):
         raise ValueError(f"Not a valid ZIP archive: {path}")
 
     with ZipFile(path) as archive:
