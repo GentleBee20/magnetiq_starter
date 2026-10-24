@@ -37,7 +37,10 @@ def _inspect_text(data: bytes) -> dict[str, Any]:
     if not lines:
         return {"sample": "empty"}
     delim = max((",", "\t", ";"), key=lambda d: lines[0].count(d))
-    try:\n        parsed = list(csv.reader(lines[:15], delimiter=delim))\n    except csv.Error as exc:\n        return {"sample": "malformed_text", "error": str(exc), "header_sample": lines[:4]}
+    try:
+        parsed = list(csv.reader(lines[:15], delimiter=delim))
+    except csv.Error as exc:
+        return {"sample": "malformed_text", "error": str(exc), "header_sample": lines[:4]}
     header = parsed[0] if parsed else []
     numeric_lines = 0
     widths: list[int] = []
