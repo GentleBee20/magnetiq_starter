@@ -116,8 +116,8 @@ def diagnose_fit(spectrum: OdmrSpectrum, fits: list[ResonanceFit]) -> FitDiagnos
             warnings.append("center_near_edge")
         if amplitude <= 0.01 * max(signal_range, 1e-12):
             warnings.append("weak_resonance")
-    local_rmse_ratios: list[float] = []
-    local_bias_ratios: list[float] = []
+    local_rmse_ratios: list[float | None] = []
+    local_bias_ratios: list[float | None] = []
     # Compare residuals close to resonances against off-resonance noise.
     quiet_mask = np.ones(len(frequency), dtype=bool)
     for _, center, width in peak_params:
@@ -128,11 +128,13 @@ def diagnose_fit(spectrum: OdmrSpectrum, fits: list[ResonanceFit]) -> FitDiagnos
         neighborhood = residual[np.abs(frequency - center) <= max(2 * width, 3 * spacing)]
         if len(neighborhood) < 5 or not np.isfinite(noise) or noise <= 1e-10:
             warnings.append("local_residual_unassessable")
+            local_rmse_ratios.append(None)
+            local_bias_ratios.append(None)
             continue
         local_rmse_ratios.append(float(np.sqrt(np.mean(neighborhood**2)) / noise))
         local_bias_ratios.append(float(abs(np.mean(neighborhood)) / noise))
-    max_local_rmse = max(local_rmse_ratios, default=None)
-    max_local_bias = max(local_bias_ratios, default=None)
+    max_local_rmse = max((value for value in local_rmse_ratios if value is not None), default=None)
+    max_local_bias = max((value for value in local_bias_ratios if value is not None), default=None)
     if max_local_rmse is not None and max_local_rmse > 2.0:
         warnings.append("resonance_local_residual_excess")
     if max_local_bias is not None and max_local_bias > 1.0:
