@@ -708,3 +708,7 @@ and frequency-dependent residual metrics to new immutable run
 artifacts. Develop any model-mismatch warning on a distinct development
 cohort and validate on genuinely untouched seeds/regimes. Production
 FIT_OK/REVIEW_REQUIRED/FIT_FAILED rules remain unchanged.
+
+## MVP packaging — 24 October 2026
+
+The first MVP integration adds `measurement_report.json` and `measurement_report.html` to the existing `scripts.diagnose_odmr` analysis run, alongside CSV and fit plots. Statuses remain provisional fit diagnostics, not calibrated measurement or current-map quality. The interface still uses the existing CLI; a streamlined installed command, reference manifest, polished demonstration and release validation remain outstanding. CI not yet verified for these commits.
