@@ -26,27 +26,36 @@ def make_cases(seed: int, repeats: int) -> list[tuple[str, float, float, np.ndar
     for index in range(repeats):
         center_1 = float(rng.uniform(2.862, 2.867))
         center_2 = float(rng.uniform(2.873, 2.879))
-        parameters = np.array([
-            1.0, 0.0, rng.uniform(0.025, 0.055), center_1,
-            rng.uniform(0.0008, 0.0016), rng.uniform(0.025, 0.055),
-            center_2, rng.uniform(0.0008, 0.0016),
-        ])
+        parameters = np.array(
+            [
+                1.0,
+                0.0,
+                rng.uniform(0.025, 0.055),
+                center_1,
+                rng.uniform(0.0008, 0.0016),
+                rng.uniform(0.025, 0.055),
+                center_2,
+                rng.uniform(0.0008, 0.0016),
+            ]
+        )
         clean = evaluate_model(frequency, parameters, 2)
         baseline_noise = rng.normal(0, 0.0006, len(frequency))
         for kind in ("clean", "localized", "oscillation", "curved_baseline"):
             for severity in (0.0, 0.5, 1.0, 2.0):
                 distortion = np.zeros_like(frequency)
                 if kind == "localized":
-                    distortion = severity * 0.005 * np.exp(
-                        -(((frequency - center_1) / 0.0005) ** 2)
+                    distortion = (
+                        severity * 0.005 * np.exp(-(((frequency - center_1) / 0.0005) ** 2))
                     )
                 elif kind == "oscillation":
-                    distortion = severity * 0.012 * np.sin(
-                        (frequency - frequency[0]) * 2 * np.pi / 0.006
+                    distortion = (
+                        severity * 0.012 * np.sin((frequency - frequency[0]) * 2 * np.pi / 0.006)
                     )
                 elif kind == "curved_baseline":
-                    distortion = severity * 0.025 * (
-                        ((frequency - frequency.mean()) / np.ptp(frequency)) ** 2
+                    distortion = (
+                        severity
+                        * 0.025
+                        * (((frequency - frequency.mean()) / np.ptp(frequency)) ** 2)
                     )
                 name = f"{index:03d}_{kind}_{severity:g}"
                 cases.append(
@@ -70,28 +79,28 @@ def evaluate(
         if len(centers) == 2:
             estimated = sorted(centers)
             truth = sorted((center_1, center_2))
-            maximum_error_mhz = max(abs(a - b) for a, b in zip(estimated, truth)) * 1000
+            maximum_error_mhz = max(abs(a - b) for a, b in zip(estimated, truth, strict=True)) * 1000
         else:
             maximum_error_mhz = float("nan")
-        accurate = bool(
-            np.isfinite(maximum_error_mhz) and maximum_error_mhz <= tolerance_mhz
+        accurate = bool(np.isfinite(maximum_error_mhz) and maximum_error_mhz <= tolerance_mhz)
+        rows.append(
+            {
+                "case": name,
+                "distortion": name.split("_", 1)[1].rsplit("_", 1)[0],
+                "severity": float(name.rsplit("_", 1)[1]),
+                "center_truth_1_ghz": center_1,
+                "center_truth_2_ghz": center_2,
+                "max_center_error_mhz": maximum_error_mhz,
+                "centers_within_tolerance": accurate,
+                "tolerance_mhz": tolerance_mhz,
+                "current_status": diagnostic.status,
+                "candidate_status": candidate.candidate_status,
+                "normalized_rmse": diagnostic.normalized_rmse,
+                "abs_lag1": abs(diagnostic.lag1_residual_correlation),
+                "max_local_rmse_ratio": diagnostic.max_local_rmse_ratio,
+                "warnings": ";".join(diagnostic.warnings),
+            }
         )
-        rows.append({
-            "case": name,
-            "distortion": name.split("_", 1)[1].rsplit("_", 1)[0],
-            "severity": float(name.rsplit("_", 1)[1]),
-            "center_truth_1_ghz": center_1,
-            "center_truth_2_ghz": center_2,
-            "max_center_error_mhz": maximum_error_mhz,
-            "centers_within_tolerance": accurate,
-            "tolerance_mhz": tolerance_mhz,
-            "current_status": diagnostic.status,
-            "candidate_status": candidate.candidate_status,
-            "normalized_rmse": diagnostic.normalized_rmse,
-            "abs_lag1": abs(diagnostic.lag1_residual_correlation),
-            "max_local_rmse_ratio": diagnostic.max_local_rmse_ratio,
-            "warnings": ";".join(diagnostic.warnings),
-        })
     return rows
 
 
@@ -106,11 +115,13 @@ def performance(rows: list[dict[str, object]], status_key: str) -> dict[str, flo
         "failed_rate": sum(r[status_key] == "FIT_FAILED" for r in rows) / len(rows),
         "false_accept_given_inaccurate": (
             sum(r[status_key] == "FIT_OK" for r in inaccurate) / len(inaccurate)
-            if inaccurate else float("nan")
+            if inaccurate
+            else float("nan")
         ),
         "false_failure_given_accurate": (
             sum(r[status_key] == "FIT_FAILED" for r in accurate) / len(accurate)
-            if accurate else float("nan")
+            if accurate
+            else float("nan")
         ),
         "inaccurate_count": float(len(inaccurate)),
         "accurate_count": float(len(accurate)),
