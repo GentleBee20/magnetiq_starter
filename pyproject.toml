@@ -7,7 +7,7 @@ name = "magnetiq"
 version = "0.1.0"
 description = "Reproducible quantum-sensor measurement quality analysis"
 requires-python = ">=3.10"
-dependencies = []
+dependencies = ["matplotlib>=3.8,<4"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8,<10", "ruff>=0.9,<1", "mypy>=1.13,<2"]
