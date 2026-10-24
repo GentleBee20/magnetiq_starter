@@ -21,9 +21,12 @@ def plot_fit(
     """Save overlay and frequency-dependent residual figure."""
     frequency = np.asarray(spectrum.frequency_ghz)
     measured = np.asarray(spectrum.normalized_contrast)
-    figure, (axis, residual_axis) = plt.subplots(
-        2, 1, figsize=(10, 6), sharex=True, gridspec_kw={"height_ratios": [3, 1]}
-    )
+    figure = plt.figure(figsize=(11, 9))
+    grid = figure.add_gridspec(3, 1, height_ratios=[3, 1, 1.8])
+    axis = figure.add_subplot(grid[0])
+    residual_axis = figure.add_subplot(grid[1], sharex=axis)
+    diagnostics_axis = figure.add_subplot(grid[2])
+    diagnostics_axis.axis("off")
     axis.plot(frequency, measured, ".", markersize=2, alpha=0.65, label="Measured contrast")
     if fit.success and fit.parameters:
         prediction = evaluate_model(frequency, np.asarray(fit.parameters), MODEL_PEAKS[fit.model])
@@ -49,6 +52,31 @@ def plot_fit(
     axis.set_title(f"{Path(spectrum.source).name} | {diagnosis.status}")
     residual_axis.set_ylabel("Residual")
     residual_axis.set_xlabel("Microwave frequency (GHz)")
+    diagnostics_axis.text(
+        0.0,
+        0.98,
+        f"FIT QUALITY: {diagnosis.status} | Model: {diagnosis.model}",
+        transform=diagnostics_axis.transAxes,
+        va="top",
+        fontsize=11,
+        fontweight="bold",
+    )
+    reasons = ", ".join(diagnosis.warnings) if diagnosis.warnings else "No heuristic warnings"
+    report_lines = [
+        f"Warnings: {reasons}",
+        f"RMSE: {diagnosis.rmse:.4g} | Relative RMSE: {diagnosis.normalized_rmse:.3g} (limit 0.15)",
+        f"|Lag-1 residual correlation|: {abs(diagnosis.lag1_residual_correlation):.3g} (limit 0.7)",
+        f"Local RMSE / off-res noise: R1={diagnosis.resonance_1_local_rmse_ratio}, "
+        f"R2={diagnosis.resonance_2_local_rmse_ratio} (limit 2)",
+        f"Local bias / off-res noise: R1={diagnosis.resonance_1_local_bias_ratio}, "
+        f"R2={diagnosis.resonance_2_local_bias_ratio} (limit 1)",
+        "Orange shading: +/- 2 fitted Lorentzian half-widths at each resonance",
+        "Status is provisional fitting QC; NOT a calibrated measurement or hardware verdict.",
+    ]
+    diagnostics_axis.text(
+        0.0, 0.81, "\\n".join(report_lines), transform=diagnostics_axis.transAxes,
+        va="top", fontsize=8.5, linespacing=1.45,
+    )
     figure.tight_layout()
     output.parent.mkdir(parents=True, exist_ok=True)
     figure.savefig(output, dpi=160)
