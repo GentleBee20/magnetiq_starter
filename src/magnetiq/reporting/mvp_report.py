@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from magnetiq.processing.diagnostics import FitDiagnostics
+from magnetiq.reporting.artifact_catalogue import describe_warnings
 
 
 def _json_safe(value: Any) -> Any:
@@ -31,7 +32,10 @@ def write_measurement_report(results: list[FitDiagnostics], output_dir: Path) ->
         "schema_version": "0.1.0",
         "scope": "Provisional ODMR fit diagnostics; not sensor calibration or field-map validation",
         "status_counts": counts,
-        "measurements": [asdict(result) for result in results],
+        "measurements": [
+            {**asdict(result), "artifact_explanations": describe_warnings(result.warnings)}
+            for result in results
+        ],
     }
     (output_dir / "measurement_report.json").write_text(
         json.dumps(_json_safe(data), indent=2, allow_nan=False), encoding="utf-8"
@@ -44,7 +48,11 @@ def write_measurement_report(results: list[FitDiagnostics], output_dir: Path) ->
         + "</td><td>"
         + escape(result.model)
         + "</td><td>"
-        + escape(", ".join(result.warnings))
+        + escape("; ".join(
+            explanation["code"] + " (" + explanation["investigation_stage"] + "): "
+            + explanation["next_check"]
+            for explanation in describe_warnings(result.warnings)
+        ) or "No provisional warnings")
         + "</td></tr>"
         for result in results
     )
