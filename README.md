@@ -51,3 +51,14 @@ Writes `reports/odmr/spectrum_summary.csv` and
 `reports/odmr/representative_spectra.png`. These are **model-free descriptive
 statistics only**; minimum contrast is not proof of a physical resonance,
 and median adjacent differences are not calibrated instrument noise.
+
+## Experimental resonance model comparison
+
+```powershell
+python scripts\fit_odmr.py "data\raw\Dataset_10.5281zenodo.14697917.zip" --limit 6
+```
+
+Exports `reports/odmr/model_fits.csv` with baseline, single- and double-Lorentzian
+fit metrics. AICc model preference and optimizer success **do not establish**
+measurement reliability. This is an initial constrained benchmark; more robust
+initialization, uncertainty estimates and residual diagnostics are planned.
