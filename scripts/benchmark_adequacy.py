@@ -51,6 +51,8 @@ def main() -> None:
                 "lag1_correlation": diagnosis.lag1_residual_correlation,
                 "local_rmse_ratio": diagnosis.max_local_rmse_ratio,
                 "candidate_reasons": ";".join(candidate.severe_reasons),
+                "current_warnings": ";".join(diagnosis.warnings),
+                "max_local_bias_ratio": diagnosis.max_local_bias_ratio,
             }
         )
     with output.open("w", newline="", encoding="utf-8") as file:
@@ -61,6 +63,10 @@ def main() -> None:
         print(
             f"{row['case']}: expected={row['synthetic_label']} "
             f"current={row['existing_status']} candidate={row['candidate_status']}"
+            f" nRMSE={row['normalized_rmse']:.3f}"
+            f" lag1={row['lag1_correlation']:.3f}"
+            f" local_ratio={row['local_rmse_ratio']}"
+            f" warnings={row['current_warnings']}"
         )
     print(f"Saved benchmark: {output}")
     print("CAUTION: four synthetic cases cannot calibrate operational thresholds.")
