@@ -98,9 +98,7 @@ def _inspect_zip(zf: zipfile.ZipFile, *, prefix: str = "", depth: int = 0) -> li
                     nested_data = nested_stream.read()
                 with zipfile.ZipFile(io.BytesIO(nested_data)) as nested:
                     row["nested_entries"] = len(nested.infolist())
-                    rows.extend(
-                        _inspect_zip(nested, prefix=name + "::", depth=depth + 1)
-                    )
+                    rows.extend(_inspect_zip(nested, prefix=name + "::", depth=depth + 1))
         except (OSError, ValueError, csv.Error, zipfile.BadZipFile, RuntimeError) as exc:
             row["inspection_error"] = type(exc).__name__ + ": " + str(exc)
         rows.append(row)
@@ -162,9 +160,7 @@ def main() -> None:
         lines.append(f"- **{row['category']}** `{row['path']}`: {details}")
     lines += ["", "## Limitations", ""]
     lines += [f"- {value}" for value in report["limitations"]]
-    (args.output_dir / "full_inventory.md").write_text(
-        "\n".join(lines) + "\n", encoding="utf-8"
-    )
+    (args.output_dir / "full_inventory.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
     print("Inventory saved:", args.output_dir / "full_inventory.md")
 
 

@@ -12,7 +12,9 @@ def test_inventory_groups_and_nested_zip(tmp_path):
         nested.writestr("Data/Coherence/ramsey.txt", "Time [us],Contrast\n0,1\n1,0.9\n")
     archive = tmp_path / "dataset.zip"
     with zipfile.ZipFile(archive, "w") as outer:
-        outer.writestr("Data/ODMR/sample.txt", "Freq [GHz],Normalized readout contrast\n2.85,0.99\n")
+        outer.writestr(
+            "Data/ODMR/sample.txt", "Freq [GHz],Normalized readout contrast\n2.85,0.99\n"
+        )
         outer.writestr("Data/Profile/nested.zip", inner.getvalue())
     result = inventory(archive)
     assert result["total_entries_including_nested"] == 3
@@ -24,9 +26,12 @@ def test_inventory_groups_and_nested_zip(tmp_path):
 
 def test_image_metadata_read_without_extraction(tmp_path):
     archive = tmp_path / "pictures.zip"
-    header = b"\x89PNG\r\n\x1a\n" + b"\x00\x00\x00\x0dIHDR" + (20).to_bytes(
-        4, "big"
-    ) + (30).to_bytes(4, "big")
+    header = (
+        b"\x89PNG\r\n\x1a\n"
+        + b"\x00\x00\x00\x0dIHDR"
+        + (20).to_bytes(4, "big")
+        + (30).to_bytes(4, "big")
+    )
     with zipfile.ZipFile(archive, "w") as outer:
         outer.writestr("Data/Scan/field.png", header)
     result = inventory(archive)
