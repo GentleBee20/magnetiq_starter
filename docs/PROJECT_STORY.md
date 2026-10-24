@@ -190,3 +190,14 @@ false-failure rate across explicitly selected residual-correlation and
 global-error gates on **held-out synthetic parameter/noise/distorion
 regimes**, with confidence intervals and distinct model-adequacy and
 center-accuracy outcomes. Do not change production QC yet.
+
+## Held-out policy validation — implementation checkpoint
+
+Implemented [the held-out protocol](HELDOUT_POLICY_VALIDATION.md): a separate
+training seed selects a residual-error and correlation gate under a maximum
+training false-failure rate; a second seed is evaluated only afterward.
+Existing and previous-candidate policies are scored alongside the tuned gate,
+with full per-case CSVs and immutable MLflow artifacts. The code remains
+outside production QC. **No held-out measurements or results are claimed yet.**
+The next milestone is to inspect its holdout performance and identify
+whether successes persist under shifts in noise and distortion family.
