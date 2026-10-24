@@ -425,3 +425,28 @@ truth, point estimates, and interval endpoints; run a parametric
 bootstrap using the known independent Gaussian noise model as a
 correct-specification control; then test structured-noise
 strategies under held-out noise and oscillation regimes.
+
+## Per-case bootstrap calibration CSV audit
+
+The uploaded 72-row `bootstrap_calibration.csv` contains 36 distinct
+synthetic spectra, each evaluated twice (raw and centered residuals).
+The supplied `summary.json` agrees with recomputed coverage counts.
+All bootstrap runs were assessable with 100/100 successful replicates.
+
+- Clean: center 1 covered 8/12; center 2 12/12; both 8/12.
+  The four clean center-1 misses were seed 20261224, cases 000/001/003,
+  and seed 20261225, case 001. All four clean cases from seed 20261226
+  covered both centers.
+- Oscillatory: center 1 covered 6/24; center 2 covered 4/24; both 0/24.
+- Raw and centered bootstrap made identical inclusion decisions on every
+  paired case; interval *bounds* were not logged, so numerical equality
+  of intervals cannot be asserted.
+
+**Limitation found in the artifact schema:** the per-case CSV has coverage
+booleans but omits true/estimated centers, interval endpoints, widths
+and resonance parameters. Therefore these artifacts do not identify
+whether clean center-1 misses are due to systematic bias or intervals
+that are too narrow. Next step: add diagnostic endpoints and
+per-case errors to the benchmark, then compare IID residual bootstrap
+with a Gaussian-noise parametric control using a larger grouped
+synthetic validation design. Do not tune production thresholds yet.
