@@ -78,7 +78,7 @@ def test_signed_bias_drift_and_sampling_are_descriptive():
     assert result.signed_bias_over_rmse == pytest.approx(0)
     assert result.early_late_bias_difference_over_rmse == pytest.approx(2)
     assert result.sampling_step_max_min_ratio == pytest.approx(1)
-    assert not result.warnings
+    assert "structured_residuals_exploratory" in result.warnings
 
 
 def test_offset_and_nonuniform_sampling_metrics():
