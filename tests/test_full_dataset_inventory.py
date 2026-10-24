@@ -36,7 +36,7 @@ def test_image_metadata_read_without_extraction(tmp_path):
 def test_nul_containing_nested_text_is_reported_not_fatal(tmp_path):
     nested_bytes = io.BytesIO()
     with zipfile.ZipFile(nested_bytes, "w") as nested:
-        nested.writestr("Data/Coherence/mixed.txt", b"header\\x00binary\\n")
+        nested.writestr("Data/Coherence/mixed.txt", b"header\x00binary\n")
     archive = tmp_path / "data.zip"
     with zipfile.ZipFile(archive, "w") as outer:
         outer.writestr("nested.zip", nested_bytes.getvalue())
