@@ -66,3 +66,28 @@ def test_constant_signal_scale_is_undefined():
     result = analyze("SpinEcho.txt", x)
     assert "undefined_signal_scale" in result.warnings
     assert np.isnan(result.normalized_rmse)
+
+
+def test_signed_bias_drift_and_sampling_are_descriptive():
+    tau = np.arange(10, dtype=float) * 10
+    fit = np.linspace(30, 15, 10)
+    residual = np.array([-2.0] * 5 + [2.0] * 5)
+    values = np.column_stack([tau, fit + residual, fit, fit])
+    result = analyze("Ramsey.txt", values)
+    assert result.mean_residual == pytest.approx(0)
+    assert result.signed_bias_over_rmse == pytest.approx(0)
+    assert result.early_late_bias_difference_over_rmse == pytest.approx(2)
+    assert result.sampling_step_max_min_ratio == pytest.approx(1)
+    assert "structured_residuals_exploratory" in result.warnings
+
+
+def test_offset_and_nonuniform_sampling_metrics():
+    tau = np.array([0, 1, 2, 3, 10, 11], dtype=float)
+    fit = np.arange(6, dtype=float)
+    values = np.column_stack([tau, fit + 3, fit, fit])
+    result = analyze("Spinecho.txt", values)
+    assert result.mean_residual == pytest.approx(3)
+    assert result.signed_bias_over_rmse == pytest.approx(1)
+    assert result.early_late_bias_difference_over_rmse == pytest.approx(0)
+    assert result.sampling_step_max_min_ratio == pytest.approx(7)
+    assert result.lag1_residual_correlation is None
