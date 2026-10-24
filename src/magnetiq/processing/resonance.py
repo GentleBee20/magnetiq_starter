@@ -29,9 +29,7 @@ def lorentzian(frequency: np.ndarray, center: float, width: float) -> np.ndarray
     return width**2 / ((frequency - center) ** 2 + width**2)
 
 
-def evaluate_model(
-    frequency: np.ndarray, parameters: np.ndarray, n_peaks: int
-) -> np.ndarray:
+def evaluate_model(frequency: np.ndarray, parameters: np.ndarray, n_peaks: int) -> np.ndarray:
     """Evaluate a linear baseline plus n negative Lorentzian dips."""
     relative = frequency - float(np.mean(frequency))
     prediction = parameters[0] + parameters[1] * relative
@@ -39,7 +37,7 @@ def evaluate_model(
         offset = 2 + 3 * index
         amplitude, center, width = parameters[offset : offset + 3]
         prediction = prediction - amplitude * lorentzian(frequency, center, width)
-    return prediction
+    return np.asarray(prediction, dtype=float)
 
 
 def fit_spectrum(spectrum: OdmrSpectrum, n_peaks: int) -> ResonanceFit:
@@ -57,8 +55,15 @@ def fit_spectrum(spectrum: OdmrSpectrum, n_peaks: int) -> ResonanceFit:
     parameter_count = 2 + 3 * n_peaks
     name = ("baseline", "single", "double")[n_peaks]
     if count <= parameter_count + 1:
-        return ResonanceFit(spectrum.source, name, (), float("nan"), float("inf"), False,
-                            "Insufficient observations for AICc")
+        return ResonanceFit(
+            spectrum.source,
+            name,
+            (),
+            float("nan"),
+            float("inf"),
+            False,
+            "Insufficient observations for AICc",
+        )
 
     span = float(np.ptp(x))
     spacing = float(np.median(np.diff(x)))
@@ -80,8 +85,9 @@ def fit_spectrum(spectrum: OdmrSpectrum, n_peaks: int) -> ResonanceFit:
                 break
         selected = sorted(candidates[:n_peaks], key=lambda index: x[index])
         for index in selected:
-            initial.extend([max(baseline - y[index], 1e-6), float(x[index]),
-                            max(spacing * 3, span / 30)])
+            initial.extend(
+                [max(baseline - y[index], 1e-6), float(x[index]), max(spacing * 3, span / 30)]
+            )
             lower.extend([0.0, float(x[0]), max(spacing / 4, 1e-9)])
             upper.extend([max(2 * signal_range, 1e-5), float(x[-1]), span / 2])
 
@@ -96,10 +102,19 @@ def fit_spectrum(spectrum: OdmrSpectrum, n_peaks: int) -> ResonanceFit:
         rss = max(float(np.dot(residual, residual)), np.finfo(float).tiny)
         rmse = float(np.sqrt(rss / count))
         aic = count * np.log(rss / count) + 2 * parameter_count
-        aicc = float(aic + 2 * parameter_count * (parameter_count + 1) /
-                     (count - parameter_count - 1))
-        return ResonanceFit(spectrum.source, name, tuple(float(v) for v in fitted.x),
-                            rmse, aicc, bool(fitted.success), fitted.message)
+        aicc = float(
+            aic + 2 * parameter_count * (parameter_count + 1) / (count - parameter_count - 1)
+        )
+        return ResonanceFit(
+            spectrum.source,
+            name,
+            tuple(float(v) for v in fitted.x),
+            rmse,
+            aicc,
+            bool(fitted.success),
+            fitted.message,
+        )
     except (ValueError, FloatingPointError) as exc:
-        return ResonanceFit(spectrum.source, name, (), float("nan"), float("inf"),
-                            False, str(exc))
+        return ResonanceFit(
+            spectrum.source, name, (), float("nan"), float("inf"), False, str(exc)
+        )
