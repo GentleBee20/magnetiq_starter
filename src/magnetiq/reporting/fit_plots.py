@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from textwrap import wrap
 
 import matplotlib
 
@@ -61,7 +62,6 @@ def plot_fit(
         fontsize=11,
         fontweight="bold",
     )
-    reasons = ", ".join(diagnosis.warnings) if diagnosis.warnings else "No heuristic warnings"
     def metric_row(label: str, value: float | None, threshold: float) -> list[str]:
         if value is None or not np.isfinite(value):
             return [label, "N/A", f"<= {threshold:g}", "N/A"]
@@ -86,7 +86,7 @@ def plot_fit(
         cellText=rows,
         colLabels=["Diagnostic", "Observed", "Review limit", "Result"],
         colWidths=[0.48, 0.16, 0.18, 0.18],
-        bbox=[0.0, 0.16, 1.0, 0.64],
+        bbox=[0.0, 0.30, 1.0, 0.50],
         cellLoc="left",
     )
     table.auto_set_font_size(False)
@@ -98,17 +98,22 @@ def plot_fit(
         elif rows[row_number - 1][3] == "N/A":
             result_cell.set_facecolor("#eeeeee")
     reasons = ", ".join(diagnosis.warnings) if diagnosis.warnings else "none"
+    warning_lines = wrap("Warnings: " + reasons, width=110)
     diagnostics_axis.text(
-        0.0, 0.11, f"Warnings: {reasons}", transform=diagnostics_axis.transAxes,
-        va="top", fontsize=8, wrap=True,
+        0.0,
+        0.25,
+        "\n".join(warning_lines[:3]),
+        transform=diagnostics_axis.transAxes,
+        va="top",
+        fontsize=7.5,
     )
     diagnostics_axis.text(
-        0.0, -0.07,
+        0.0, 0.10,
         "Orange shading: +/- 2 resonance half-widths (inspection windows; not uncertainty).",
         transform=diagnostics_axis.transAxes, fontsize=7.5,
     )
     diagnostics_axis.text(
-        0.0, -0.17, "Provisional fit QC only; not a sensor or device-fault diagnosis.",
+        0.0, 0.02, "Provisional fit QC only; not a sensor or device-fault diagnosis.",
         transform=diagnostics_axis.transAxes, fontsize=7.5,
     )
     figure.subplots_adjust(left=0.10, right=0.96, top=0.93, bottom=0.12, hspace=0.35)
