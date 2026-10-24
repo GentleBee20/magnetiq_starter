@@ -33,10 +33,8 @@ def plot_spectra(spectra: list[OdmrSpectrum], destination: Path) -> None:
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    figure, axes = plt.subplots(
-        len(spectra), 1, figsize=(10, 2.6 * len(spectra)), squeeze=False
-    )
-    for axis, spectrum in zip(axes[:, 0], spectra):
+    figure, axes = plt.subplots(len(spectra), 1, figsize=(10, 2.6 * len(spectra)), squeeze=False)
+    for axis, spectrum in zip(axes[:, 0], spectra, strict=True):
         axis.plot(spectrum.frequency_ghz, spectrum.normalized_contrast, linewidth=0.9)
         axis.set_title(spectrum.source.rsplit("/", 1)[-1], fontsize=8)
         axis.set_ylabel("Normalized contrast")
