@@ -28,6 +28,11 @@ class CenterStability:
     multistart_successes: int
     multistart_trials: int
     multistart_range_max_mhz: float | None
+    near_optimal_range_max_mhz: float | None = None
+    near_optimal_count: int = 0
+    restart_details: tuple[tuple[float, float, float, float, bool], ...] = ()
+    bootstrap_interval_1_ghz: tuple[float, float] | None = None
+    bootstrap_interval_2_ghz: tuple[float, float] | None = None
 
 
 def center_stability(
@@ -37,12 +42,15 @@ def center_stability(
     seed: int = 42,
     bootstrap_trials: int = 30,
     multistart_trials: int = 12,
+    near_optimal_rss_ratio: float = 1.01,
 ) -> CenterStability:
     """Refit fixed double-Lorentzian model using IID residual resampling and jittered starts.
 
     Does not reselect model order. IID resampling ignores correlation and can be
     misleading when the model is misspecified; assess empirical coverage separately.
     """
+    if near_optimal_rss_ratio < 1.0:
+        raise ValueError("near_optimal_rss_ratio must be >= 1")
     if bootstrap_trials < 1 or multistart_trials < 1:
         raise ValueError("Trial counts must be positive")
     if fit.model != "double" or not fit.success or len(fit.parameters) != 8:
@@ -78,6 +86,8 @@ def center_stability(
         max(2 * signal_range, 1e-5), frequency[-1], span / 2,
     ])
     multistart_centers: list[list[float]] = []
+    restart_details: list[tuple[float, float, float, float, bool]] = []
+    baseline_rss = float(np.sum(residual**2))
     least_squares = cast(Callable[..., _Result], optimize.least_squares)
     for _ in range(multistart_trials):
         initial = params.copy()
@@ -95,11 +105,25 @@ def center_stability(
             max_nfev=2000,
         )
         if result.success:
-            multistart_centers.append(sorted([float(result.x[3]), float(result.x[6])]))
+            centers = sorted([float(result.x[3]), float(result.x[6])])
+            rss = float(np.sum((evaluate_model(frequency, result.x, 2) - measured) ** 2))
+            boundary = bool(
+                np.any((result.x - lower) <= 1e-5 * (upper - lower))
+                or np.any((upper - result.x) <= 1e-5 * (upper - lower))
+            )
+            multistart_centers.append(centers)
+            restart_details.append(
+                (centers[0], centers[1], rss, rss / max(baseline_rss, 1e-30), boundary)
+            )
 
+    interval_1: tuple[float, float] | None = None
+    interval_2: tuple[float, float] | None = None
     width: float | None = None
     if len(bootstrap_centers) >= 2:
         array = np.asarray(bootstrap_centers)
+        bounds = np.percentile(array, [2.5, 97.5], axis=0)
+        interval_1 = (float(bounds[0, 0]), float(bounds[1, 0]))
+        interval_2 = (float(bounds[0, 1]), float(bounds[1, 1]))
         width = float(
             np.max(np.percentile(array, 97.5, axis=0) - np.percentile(array, 2.5, axis=0))
             * 1000
@@ -108,6 +132,16 @@ def center_stability(
     if len(multistart_centers) >= 2:
         array = np.asarray(multistart_centers)
         spread = float(np.max(np.ptp(array, axis=0)) * 1000)
+    near = [
+        [detail[0], detail[1]]
+        for detail in restart_details
+        if detail[3] <= near_optimal_rss_ratio
+    ]
+    near_range = (
+        float(np.max(np.ptp(np.asarray(near), axis=0)) * 1000)
+        if len(near) >= 2
+        else None
+    )
     return CenterStability(
         len(bootstrap_centers),
         bootstrap_trials,
@@ -115,4 +149,9 @@ def center_stability(
         len(multistart_centers),
         multistart_trials,
         spread,
+        near_range,
+        len(near),
+        tuple(restart_details),
+        interval_1,
+        interval_2,
     )
