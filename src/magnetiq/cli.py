@@ -1,39 +1,36 @@
-"""Installed MagnetIQ command-line interface for ODMR fit-quality reports."""
+"""Installed command-line interface for provisional ODMR measurement reports."""
 
 from __future__ import annotations
 
 import argparse
-import sys
+from pathlib import Path
 
-from scripts.diagnose_odmr import main as diagnose_main
+from magnetiq.analysis import run_analysis
 
 
 def main() -> None:
-    """Dispatch to the existing, validated research-only analysis pipeline."""
+    """Run supported MagnetIQ analysis commands."""
     parser = argparse.ArgumentParser(prog="magnetiq")
-    subcommands = parser.add_subparsers(dest="command", required=True)
-    analyze = subcommands.add_parser("analyze", help="Analyze an ODMR archive")
-    analyze.add_argument("archive")
-    analyze.add_argument("--limit", type=int, default=0, help="Spectra to analyze; 0 means all")
-    analyze.add_argument("--output-dir", default="reports/odmr/experiments")
+    commands = parser.add_subparsers(dest="command", required=True)
+    analyze = commands.add_parser("analyze", help="Analyze ODMR measurements in a ZIP archive")
+    analyze.add_argument("archive", type=Path)
+    analyze.add_argument("--limit", type=int, default=0, help="Number of spectra; 0 means all")
+    analyze.add_argument("--output-dir", type=Path, default=Path("reports/odmr/experiments"))
     analyze.add_argument("--run-name")
     analyze.add_argument("--tracking-uri")
     args = parser.parse_args()
+    if args.limit < 0:
+        parser.error("--limit must be nonnegative")
     if args.command == "analyze":
-        forwarded = [
-            "diagnose_odmr",
+        location = run_analysis(
             args.archive,
-            "--limit",
-            str(args.limit),
-            "--output-dir",
-            args.output_dir,
-        ]
-        if args.run_name is not None:
-            forwarded.extend(["--run-name", args.run_name])
-        if args.tracking_uri is not None:
-            forwarded.extend(["--tracking-uri", args.tracking_uri])
-        sys.argv = forwarded
-        diagnose_main()
+            limit=args.limit,
+            output_dir=args.output_dir,
+            run_name=args.run_name,
+            tracking_uri=args.tracking_uri,
+        )
+        print(f"Measurement report: {location / 'measurement_report.html'}")
+        print(f"Machine-readable report: {location / 'measurement_report.json'}")
 
 
 if __name__ == "__main__":
