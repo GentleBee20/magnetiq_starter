@@ -159,3 +159,34 @@ production failure threshold.
 **Next:** Produce per-policy status × parameter-accuracy contingency
 tables; inspect the 19 inaccurate rows; test alternative held-out seeds
 and tolerances; then integrate comparative metrics with MLflow.
+
+## Per-case CSV audit — 192-row seed 20261024 benchmark
+
+The complete locally generated CSV was inspected, resolving the contingency
+table left open in the aggregate benchmark checkpoint:
+
+| Ground truth (0.5 MHz illustrative tolerance) | Existing FIT_OK | Existing REVIEW | Candidate FIT_OK | Candidate REVIEW | Candidate FAILED |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Accurate (173) | 124 | 49 | 124 | 49 | 0 |
+| Inaccurate (19) | 0 | 19 | 0 | 16 | 3 |
+
+Every inaccurate result came from **oscillatory contamination**: 7 of 12
+at severity 1, and 12 of 12 at severity 2. None of the other distortion
+families exceeded the center-error tolerance in this seeded grid. The
+candidate gate therefore caught **3/19 = 15.8%** of inaccurate cases as
+`FIT_FAILED`; the remainder correctly avoided `FIT_OK` but stayed
+`REVIEW_REQUIRED`. None of the 173 accurate cases were failed.
+
+One example (`002_oscillation_2`) had the *largest* center error,
+1.981 MHz, yet remained `REVIEW_REQUIRED` because relative RMSE was
+0.189, below the candidate's 0.20 global-error threshold.
+All 19 inaccurate cases exhibited high lag-1 residual correlation
+(approximately 0.986–0.992). This is evidence of a poorly calibrated
+severity ranking for this distortion family; it is not proof that a
+standalone correlation threshold generalizes to measured spectra.
+
+**Next research experiment:** evaluate center-error sensitivity versus
+false-failure rate across explicitly selected residual-correlation and
+global-error gates on **held-out synthetic parameter/noise/distorion
+regimes**, with confidence intervals and distinct model-adequacy and
+center-accuracy outcomes. Do not change production QC yet.
