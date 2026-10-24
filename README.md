@@ -181,3 +181,9 @@ All verdicts are **provisional ODMR spectral-fit diagnostics**; they do not
 constitute calibrated hardware measurements, current-map validation or
 semiconductor fault detection.
 
+
+## MVP release candidate
+
+See [v0.1.0 release criteria and interview demonstration](docs/MVP_RELEASE.md).
+The v0.1.0 tag is not published until the final report is inspected and the
+merged `main` commit passes CI.
