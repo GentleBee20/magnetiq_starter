@@ -182,13 +182,14 @@ constitute calibrated hardware measurements, current-map validation or
 semiconductor fault detection.
 
 
-## Released MVP and portfolio walkthrough
+## Release and technical documentation
 
 MagnetIQ [v0.1.0](https://github.com/GentleBee20/magnetiq_starter/releases/tag/v0.1.0)
-is published. For a hiring-manager-friendly overview, see the
-[technical portfolio case study](docs/PORTFOLIO_CASE_STUDY.md), the
-[five-minute interview demo](docs/INTERVIEW_DEMO.md), and the
-[scientific evidence ledger](docs/PROJECT_STORY.md).
+provides reproducible ODMR spectral-fit analysis and explainable diagnostic
+reports. See the [technical case study](docs/TECHNICAL_CASE_STUDY.md),
+[experimental evidence ledger](docs/PROJECT_STORY.md), and
+[robustness study](docs/ROBUSTNESS_STUDY.md) for methods, results,
+trade-offs, and scientific limitations.
 
-The example 105-spectrum pilot is a demonstration of **provisional spectral
-fit diagnostics**, not measured classification accuracy.
+The 105-spectrum dataset evaluation reports **provisional fit diagnostics**,
+not validated model-classification accuracy or sensor performance.
