@@ -24,8 +24,12 @@ def classify(row: dict[str, object], rmse_gate: float, lag_gate: float) -> str:
     existing = str(row["current_status"])
     if existing in ("FIT_FAILED", "FIT_OK"):
         return existing
-    rmse = float(row["normalized_rmse"])
-    lag = float(row["abs_lag1"])
+    rmse_value = row["normalized_rmse"]
+    lag_value = row["abs_lag1"]
+    if not isinstance(rmse_value, (int, float)) or not isinstance(lag_value, (int, float)):
+        raise TypeError("Expected numeric residual metrics in benchmark row")
+    rmse = float(rmse_value)
+    lag = float(lag_value)
     if math.isfinite(rmse) and math.isfinite(lag) and rmse > rmse_gate and lag > lag_gate:
         return "FIT_FAILED"
     return existing
