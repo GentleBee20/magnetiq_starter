@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import csv
 from pathlib import Path
+from typing import cast
 
 import numpy as np
 
@@ -77,7 +78,7 @@ def main() -> None:
         for kind in ("clean", "oscillation_low", "oscillation_high"):
             group = [r for r in rows if r["split"] == split and r["kind"] == kind]
             means = {
-                key: round(float(np.nanmean([float(r[key]) for r in group])), 5)
+                key: round(float(np.nanmean([cast(float, r[key]) for r in group])), 5)
                 for key in (
                     "baseline_error_mhz",
                     "fixed_error_mhz",
