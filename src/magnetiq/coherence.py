@@ -29,6 +29,10 @@ class CoherenceResult:
     lag1_residual_correlation: float | None
     max_local_rmse_ratio: float
     scale: float
+    mean_residual: float
+    signed_bias_over_rmse: float
+    early_late_bias_difference_over_rmse: float
+    sampling_step_max_min_ratio: float
     warnings: tuple[str, ...]
 
     def as_row(self) -> dict[str, str | int | float | None]:
@@ -75,6 +79,18 @@ def analyze(source: str, values: np.ndarray) -> CoherenceResult:
         lag1 = float(np.corrcoef(residual[:-1], residual[1:])[0, 1])
     else:
         lag1 = None
+    # Purely descriptive diagnostics: no new pass/fail thresholds.
+    mean_residual = float(np.mean(residual))
+    signed_bias_over_rmse = mean_residual / rmse if rmse > 0 else 0.0
+    midpoint = len(residual) // 2
+    early_late_difference = float(
+        np.mean(residual[midpoint:]) - np.mean(residual[:midpoint])
+    )
+    early_late_bias_difference_over_rmse = (
+        early_late_difference / rmse if rmse > 0 else 0.0
+    )
+    steps = np.diff(values[:, 0])
+    sampling_step_max_min_ratio = float(np.max(steps) / np.min(steps))
     global_rms = max(rmse, 1e-15)
     chunks = np.array_split(residual, min(5, len(residual)))
     local_ratio = float(max(np.sqrt(np.mean(chunk**2)) / global_rms for chunk in chunks))
@@ -106,6 +122,10 @@ def analyze(source: str, values: np.ndarray) -> CoherenceResult:
         lag1_residual_correlation=lag1,
         max_local_rmse_ratio=local_ratio,
         scale=scale,
+        mean_residual=mean_residual,
+        signed_bias_over_rmse=signed_bias_over_rmse,
+        early_late_bias_difference_over_rmse=early_late_bias_difference_over_rmse,
+        sampling_step_max_min_ratio=sampling_step_max_min_ratio,
         warnings=tuple(warnings),
     )
 
