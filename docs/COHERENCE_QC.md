@@ -67,3 +67,29 @@ before attributing causes.
 drift diagnostic, then test them on synthetic reference cases before
 assigning interpretation thresholds. Also examine the presence of
 strongly nonuniform tau sampling before using lag-based metrics.
+
+
+## Residual-bias research metrics (experimental)
+
+The CSV now also records the following **descriptive** quantities for
+each measurement, without creating additional quality flags:
+
+- `mean_residual`: mean of `Data - Fit` in the file's reported signal units.
+- `signed_bias_over_rmse`: signed mean residual divided by that file's
+  RMSE, bounded between -1 and +1 when RMSE is nonzero; a signed indication
+  of persistent offset rather than goodness-of-fit.
+- `early_late_bias_difference_over_rmse`: difference in mean residual
+  between the latter and earlier halves of the sampled time sequence,
+  divided by RMSE. It indicates changing average residual, **not** a
+  confirmed physical drift mechanism. Halves are split by sample count,
+  not equal duration.
+- `sampling_step_max_min_ratio`: largest over smallest successive
+  `tau` increment. Values above 1 indicate uneven temporal sampling;
+  this matters when interpreting sample-index lag correlations.
+
+The ratios use each file's own RMSE, so they are invariant under
+multiplication of all signal values by the same nonzero positive scale.
+If residual RMSE is zero, bias ratios are defined as zero by convention.
+
+These metrics are research leads. No new thresholds, accepted/rejected
+labels, or sensor-failure diagnoses are introduced.
