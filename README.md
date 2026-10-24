@@ -182,8 +182,13 @@ constitute calibrated hardware measurements, current-map validation or
 semiconductor fault detection.
 
 
-## MVP release candidate
+## Released MVP and portfolio walkthrough
 
-See [v0.1.0 release criteria and interview demonstration](docs/MVP_RELEASE.md).
-The v0.1.0 tag is not published until the final report is inspected and the
-merged `main` commit passes CI.
+MagnetIQ [v0.1.0](https://github.com/GentleBee20/magnetiq_starter/releases/tag/v0.1.0)
+is published. For a hiring-manager-friendly overview, see the
+[technical portfolio case study](docs/PORTFOLIO_CASE_STUDY.md), the
+[five-minute interview demo](docs/INTERVIEW_DEMO.md), and the
+[scientific evidence ledger](docs/PROJECT_STORY.md).
+
+The example 105-spectrum pilot is a demonstration of **provisional spectral
+fit diagnostics**, not measured classification accuracy.
