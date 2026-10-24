@@ -6,3 +6,8 @@ data/raw/*
 !data/raw/.gitkeep
 reports/*
 !reports/.gitkeep
+
+*.egg-info/
+mlflow.db
+mlflow.db-*
+mlruns/
