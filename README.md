@@ -40,3 +40,14 @@ The inspection is read-only and does not extract or load measurement arrays.
 - Add pytest cases for both success and failure behavior.
 - Require Ruff, mypy and pytest checks before merge.
 - Develop isolated features on branches and merge into `main` by pull request.
+
+## First exploratory ODMR analysis
+
+```powershell
+python scripts\analyze_odmr.py "data\raw\Dataset_10.5281zenodo.14697917.zip" --plot-count 6
+```
+
+Writes `reports/odmr/spectrum_summary.csv` and
+`reports/odmr/representative_spectra.png`. These are **model-free descriptive
+statistics only**; minimum contrast is not proof of a physical resonance,
+and median adjacent differences are not calibrated instrument noise.
