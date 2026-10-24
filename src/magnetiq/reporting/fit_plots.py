@@ -62,6 +62,7 @@ def plot_fit(
         fontsize=11,
         fontweight="bold",
     )
+
     def metric_row(label: str, value: float | None, threshold: float) -> list[str]:
         if value is None or not np.isfinite(value):
             return [label, "N/A", f"<= {threshold:g}", "N/A"]
@@ -74,9 +75,7 @@ def plot_fit(
 
     rows = [
         metric_row("Relative RMSE", diagnosis.normalized_rmse, 0.15),
-        metric_row(
-            "Absolute lag-1 correlation", abs(diagnosis.lag1_residual_correlation), 0.7
-        ),
+        metric_row("Absolute lag-1 correlation", abs(diagnosis.lag1_residual_correlation), 0.7),
         metric_row("Resonance 1 local RMSE / noise", diagnosis.resonance_1_local_rmse_ratio, 2.0),
         metric_row("Resonance 2 local RMSE / noise", diagnosis.resonance_2_local_rmse_ratio, 2.0),
         metric_row("Resonance 1 local bias / noise", diagnosis.resonance_1_local_bias_ratio, 1.0),
@@ -86,7 +85,7 @@ def plot_fit(
         cellText=rows,
         colLabels=["Diagnostic", "Observed", "Review limit", "Result"],
         colWidths=[0.48, 0.16, 0.18, 0.18],
-        bbox=[0.0, 0.30, 1.0, 0.50],
+        bbox=(0.0, 0.30, 1.0, 0.50),
         cellLoc="left",
     )
     table.auto_set_font_size(False)
@@ -108,13 +107,18 @@ def plot_fit(
         fontsize=7.5,
     )
     diagnostics_axis.text(
-        0.0, 0.10,
+        0.0,
+        0.10,
         "Orange shading: +/- 2 resonance half-widths (inspection windows; not uncertainty).",
-        transform=diagnostics_axis.transAxes, fontsize=7.5,
+        transform=diagnostics_axis.transAxes,
+        fontsize=7.5,
     )
     diagnostics_axis.text(
-        0.0, 0.02, "Provisional fit QC only; not a sensor or device-fault diagnosis.",
-        transform=diagnostics_axis.transAxes, fontsize=7.5,
+        0.0,
+        0.02,
+        "Provisional fit QC only; not a sensor or device-fault diagnosis.",
+        transform=diagnostics_axis.transAxes,
+        fontsize=7.5,
     )
     figure.subplots_adjust(left=0.10, right=0.96, top=0.93, bottom=0.12, hspace=0.35)
     output.parent.mkdir(parents=True, exist_ok=True)
