@@ -303,3 +303,19 @@ evaluate only near-optimal solutions rather than all converged ones, check for
 peak permutations or pathological boundaries, and quantify bootstrap
 coverage using larger synthetic, group-held-out datasets. Production QC
 remains unchanged.
+
+## Objective-aware restart and bootstrap coverage prototypes
+
+Implemented additional experimental diagnostics:
+- Per-restart center estimates, residual objective ratios, and proximity to
+  parameter bounds (`restart_details.csv`).
+- Multi-start center range restricted to solutions whose RSS is within a
+  configurable ratio (default 1.01) of the selected fit.
+- Per-resonance bootstrap percentile endpoints, and a separate seeded
+  synthetic study estimating how frequently **both** intervals cover the
+  known centers. The estimated joint coverage is descriptive, not a
+  validated confidence guarantee.
+
+See [Parameter Stability v2](PARAMETER_STABILITY_V2.md). No coverage
+measurements or classification improvements have been claimed yet.
+Production QC remains unchanged.
