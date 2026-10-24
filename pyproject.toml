@@ -7,10 +7,10 @@ name = "magnetiq"
 version = "0.1.0"
 description = "Reproducible quantum-sensor measurement quality analysis"
 requires-python = ">=3.10"
-dependencies = []
+dependencies = ["matplotlib>=3.8,<4", "numpy>=1.26,<3", "scipy>=1.12,<2", "mlflow>=3.7,<4"]
 
 [project.optional-dependencies]
-dev = ["pytest>=8,<10", "ruff>=0.9,<1", "mypy>=1.13,<2"]
+dev = ["pytest>=8,<10", "ruff>=0.9,<1", "mypy>=1.13,<2", "scipy-stubs>=1.12,<2"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -28,7 +28,6 @@ extend-exclude = ["data", "reports"]
 select = ["E4", "E7", "E9", "F", "I", "B", "UP"]
 
 [tool.mypy]
-python_version = "3.10"
 files = ["src", "scripts"]
 check_untyped_defs = true
 disallow_untyped_defs = true
