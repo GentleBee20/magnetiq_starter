@@ -9,7 +9,7 @@ def test_seeded_generation_is_reproducible() -> None:
     first = make_cases(42, 1)
     second = make_cases(42, 1)
     assert len(first) == 16
-    for a, b in zip(first, second):
+    for a, b in zip(first, second, strict=True):
         assert a[:3] == b[:3]
         assert np.array_equal(a[3], b[3])
         assert np.array_equal(a[4], b[4])
