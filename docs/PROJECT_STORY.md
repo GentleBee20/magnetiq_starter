@@ -201,3 +201,36 @@ with full per-case CSVs and immutable MLflow artifacts. The code remains
 outside production QC. **No held-out measurements or results are claimed yet.**
 The next milestone is to inspect its holdout performance and identify
 whether successes persist under shifts in noise and distortion family.
+
+## Held-out validation result — 24 October 2026
+
+Run `ab2fe4ccc1674d78a2e2f2fe885d1fe5` (local MLflow), training
+seed 20261024, held-out seed 20261124, 12 draws × 16 cases per split,
+illustrative maximum center error 0.5 MHz. Thresholds selected **using
+training cases only**: normalized RMSE > 0.10 AND absolute lag-1 residual
+correlation > 0.985, applied only to existing REVIEW_REQUIRED cases.
+
+| Held-out (192 rows; 178 accurate, 14 inaccurate) | Existing | Previous candidate | Tuned |
+| --- | ---: | ---: | ---: |
+| Accepted | 125 | 125 | 125 |
+| Reviewed | 67 | 61 | 43 |
+| Failed | 0 | 6 | 24 |
+| Inaccurate correctly failed | 0/14 | 6/14 | 14/14 |
+| Accurate incorrectly failed | 0/178 | 0/178 | 10/178 |
+| Failure recall | 0% | 42.86% | 100% |
+| False-failure rate | 0% | 0% | 5.62% |
+
+Training split: 173 accurate, 19 inaccurate; tuned failure recall 19/19
+(100%), false failures 4/173 (2.31%). The preselected training maximum
+false-failure rate was 5%. **Held-out false failures 10/178 = 5.62%
+exceeded that target**. All three policies showed zero accepted
+inaccurate spectra in this synthetic set; the tuned policy preserves
+FIT_OK cases rather than assessing those acceptances independently.
+
+**Conclusion:** The tuned gate detects more inaccurate center estimates
+but has measurable over-rejection, and the held-out false-failure rate
+is above the nominal training constraint. Do **not** promote this policy
+to production. Next: examine the ten false failures individually,
+test shifts in distortion frequency and noise/SNR, use multiple
+independent held-out seeds, and separately define model adequacy
+versus center-estimation accuracy.
