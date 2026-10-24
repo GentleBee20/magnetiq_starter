@@ -182,8 +182,14 @@ constitute calibrated hardware measurements, current-map validation or
 semiconductor fault detection.
 
 
-## MVP release candidate
+## Release and technical documentation
 
-See [v0.1.0 release criteria and interview demonstration](docs/MVP_RELEASE.md).
-The v0.1.0 tag is not published until the final report is inspected and the
-merged `main` commit passes CI.
+MagnetIQ [v0.1.0](https://github.com/GentleBee20/magnetiq_starter/releases/tag/v0.1.0)
+provides reproducible ODMR spectral-fit analysis and explainable diagnostic
+reports. See the [technical case study](docs/TECHNICAL_CASE_STUDY.md),
+[experimental evidence ledger](docs/PROJECT_STORY.md), and
+[robustness study](docs/ROBUSTNESS_STUDY.md) for methods, results,
+trade-offs, and scientific limitations.
+
+The 105-spectrum dataset evaluation reports **provisional fit diagnostics**,
+not validated model-classification accuracy or sensor performance.
