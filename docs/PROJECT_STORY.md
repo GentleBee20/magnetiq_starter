@@ -526,3 +526,17 @@ case warrants larger independent coverage experiments. Future methods
 should explicitly model or detect coherent oscillatory residuals;
 calibration must be tested on independent synthetic draws and distinct
 distortion regimes. No changes to production quality labels.
+
+## Sinusoidal nuisance-model research milestone — implementation
+
+Added an independent exploratory double-Lorentzian-plus-sine/cosine
+fitter and comparison benchmark. The model searches a fixed grid of
+candidate nuisance periods (4–9 MHz), reoptimizing the Lorentzian
+centers for each candidate. AICc comparison is reported, **without
+accounting for the period grid search**. The study evaluates clean
+spectra and oscillatory spectra, with independently seeded holdout
+parameter/noise draws and shifted oscillation periods/phases. It logs
+true maximum resonance-center error, RMSE, model selection and
+resonance accuracy to immutable local MLflow artifacts. See
+[the experimental protocol](NUISANCE_MODEL_STUDY.md). No benchmark
+results have yet been validated, and production QC is unchanged.
