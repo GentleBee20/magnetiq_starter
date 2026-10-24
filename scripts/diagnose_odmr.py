@@ -39,7 +39,9 @@ def main() -> None:
         diagnosis = diagnose_fit(spectrum, fits)
         results.append(diagnosis)
         plot_fit(
-            spectrum, choose_fit(fits), diagnosis,
+            spectrum,
+            choose_fit(fits),
+            diagnosis,
             args.output_dir / "plots" / f"{index:03d}_{Path(spectrum.source).stem}.png",
         )
         logger.info("%s: %s (%s)", spectrum.source, diagnosis.status, diagnosis.model)

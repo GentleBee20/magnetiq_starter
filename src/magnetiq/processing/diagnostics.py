@@ -52,9 +52,22 @@ def diagnose_fit(spectrum: OdmrSpectrum, fits: list[ResonanceFit]) -> FitDiagnos
     delta = eligible[1].aicc - eligible[0].aicc if len(eligible) > 1 else float("nan")
     if not fit.success or not fit.parameters:
         return FitDiagnostics(
-            spectrum.source, fit.model, "FIT_FAILED", ("optimization_failed",),
-            float("nan"), float("nan"), float("nan"), float("nan"), delta,
-            None, None, None, None, None, None, None,
+            spectrum.source,
+            fit.model,
+            "FIT_FAILED",
+            ("optimization_failed",),
+            float("nan"),
+            float("nan"),
+            float("nan"),
+            float("nan"),
+            delta,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
         )
     frequency = np.asarray(spectrum.frequency_ghz, dtype=float)
     measured = np.asarray(spectrum.normalized_contrast, dtype=float)
@@ -77,8 +90,11 @@ def diagnose_fit(spectrum: OdmrSpectrum, fits: list[ResonanceFit]) -> FitDiagnos
 
     peaks = MODEL_PEAKS[fit.model]
     peak_params = [
-        (fit.parameters[2 + 3 * index], fit.parameters[3 + 3 * index],
-         fit.parameters[4 + 3 * index])
+        (
+            fit.parameters[2 + 3 * index],
+            fit.parameters[3 + 3 * index],
+            fit.parameters[4 + 3 * index],
+        )
         for index in range(peaks)
     ]
     spacing = float(np.median(np.diff(frequency)))
@@ -103,9 +119,20 @@ def diagnose_fit(spectrum: OdmrSpectrum, fits: list[ResonanceFit]) -> FitDiagnos
         return float(peak_params[index][item] * scale) if len(peak_params) > index else None
 
     return FitDiagnostics(
-        spectrum.source, fit.model, "REVIEW_REQUIRED" if warnings else "FIT_OK",
-        tuple(dict.fromkeys(warnings)), fit.rmse, normalized,
-        float(np.max(np.abs(residual))), lag1, delta,
-        field(0, 1), field(1, 1), separation,
-        field(0, 2, 1000), field(1, 2, 1000), field(0, 0), field(1, 0),
+        spectrum.source,
+        fit.model,
+        "REVIEW_REQUIRED" if warnings else "FIT_OK",
+        tuple(dict.fromkeys(warnings)),
+        fit.rmse,
+        normalized,
+        float(np.max(np.abs(residual))),
+        lag1,
+        delta,
+        field(0, 1),
+        field(1, 1),
+        separation,
+        field(0, 2, 1000),
+        field(1, 2, 1000),
+        field(0, 0),
+        field(1, 0),
     )

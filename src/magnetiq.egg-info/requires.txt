@@ -1,0 +1,9 @@
+matplotlib<4,>=3.8
+numpy<3,>=1.26
+scipy<2,>=1.12
+
+[dev]
+pytest<10,>=8
+ruff<1,>=0.9
+mypy<2,>=1.13
+scipy-stubs<2,>=1.12
