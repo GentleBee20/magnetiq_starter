@@ -74,10 +74,15 @@ def plot_fit(
         "Status is provisional fitting QC; NOT a calibrated measurement or hardware verdict.",
     ]
     diagnostics_axis.text(
-        0.0, 0.81, "\\n".join(report_lines), transform=diagnostics_axis.transAxes,
-        va="top", fontsize=8.5, linespacing=1.45,
+        0.0,
+        0.81,
+        "\\n".join(report_lines),
+        transform=diagnostics_axis.transAxes,
+        va="top",
+        fontsize=8.5,
+        linespacing=1.45,
     )
-    figure.tight_layout()
+    figure.subplots_adjust(left=0.10, right=0.96, top=0.93, bottom=0.08, hspace=0.34)
     output.parent.mkdir(parents=True, exist_ok=True)
     figure.savefig(output, dpi=160)
     plt.close(figure)
