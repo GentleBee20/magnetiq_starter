@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import numpy as np
-from scipy.optimize import least_squares
+from scipy import optimize
 from scipy.signal import find_peaks
 
 from magnetiq.data.odmr import OdmrSpectrum
@@ -77,7 +77,7 @@ def fit_spectrum(spectrum: OdmrSpectrum, n_peaks: int) -> ResonanceFit:
     if n_peaks:
         prominence = max(signal_range * 0.12, 1e-7)
         indices, _ = find_peaks(-y, prominence=prominence, distance=max(2, count // 15))
-        candidates = sorted(indices, key=lambda index: y[index])
+        candidates = sorted((int(index) for index in indices), key=lambda index: y[index])
         for index in np.argsort(y):
             if all(abs(int(index) - chosen) > max(2, count // 15) for chosen in candidates):
                 candidates.append(int(index))
@@ -92,7 +92,7 @@ def fit_spectrum(spectrum: OdmrSpectrum, n_peaks: int) -> ResonanceFit:
             upper.extend([max(2 * signal_range, 1e-5), float(x[-1]), span / 2])
 
     try:
-        fitted = least_squares(
+        fitted = optimize.least_squares(
             lambda p: evaluate_model(x, p, n_peaks) - y,
             x0=np.asarray(initial),
             bounds=(np.asarray(lower), np.asarray(upper)),
@@ -115,6 +115,4 @@ def fit_spectrum(spectrum: OdmrSpectrum, n_peaks: int) -> ResonanceFit:
             fitted.message,
         )
     except (ValueError, FloatingPointError) as exc:
-        return ResonanceFit(
-            spectrum.source, name, (), float("nan"), float("inf"), False, str(exc)
-        )
+        return ResonanceFit(spectrum.source, name, (), float("nan"), float("inf"), False, str(exc))
