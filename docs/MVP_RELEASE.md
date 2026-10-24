@@ -63,14 +63,12 @@ New commits, including this document, must pass CI again before merge.
 - [ ] Merge the release candidate into protected `main`
 - [ ] Tag `v0.1.0` only from the merged, passing `main` commit
 
-## Suggested interview demonstration
+## Inspecting the released analysis
 
-1. Run `magnetiq analyze` on the public dataset and open the HTML report.
-2. Compare a provisional `FIT_OK` case with a `REVIEW_REQUIRED` case.
-3. Explain one warning, its measured evidence and the suggested next check.
-4. Demonstrate an intentionally misleading synthetic fit: lower residual
-   error is not proof of more accurate resonance-center estimates.
-5. Open the MLflow run, manifest and project evidence ledger.
+1. Analyze the independently downloaded public ODMR dataset.
+2. Open the HTML report and inspect contrasting `FIT_OK` and `REVIEW_REQUIRED` cases using linked diagnostic plots.
+3. Review warning evidence and the relevant follow-up checks.
+4. Examine the synthetic robustness experiments, including cases where smaller fitting error does not improve resonance-center accuracy.
+5. Inspect MLflow provenance, the manifest and the evidence ledger.
 
-See `docs/PROJECT_STORY.md` and `docs/ROBUSTNESS_STUDY.md` for
-scientific limitations and negative results.
+See `docs/PROJECT_STORY.md` and `docs/ROBUSTNESS_STUDY.md` for scientific limitations and negative results.
