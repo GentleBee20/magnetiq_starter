@@ -30,7 +30,9 @@ def _image_dimensions(data: bytes) -> list[int] | None:
 
 
 def _inspect_text(data: bytes) -> dict[str, Any]:
-    if b"\0" in data:\n        return {"sample": "binary_or_nul_containing", "nul_bytes": data.count(b"\0")}\n    sample = data[:65536].decode("utf-8-sig", errors="replace")
+    if b"\0" in data:
+        return {"sample": "binary_or_nul_containing", "nul_bytes": data.count(b"\0")}
+    sample = data[:65536].decode("utf-8-sig", errors="replace")
     lines = [line.strip() for line in sample.splitlines() if line.strip()]
     if not lines:
         return {"sample": "empty"}
