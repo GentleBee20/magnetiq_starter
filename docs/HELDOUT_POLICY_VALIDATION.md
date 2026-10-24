@@ -9,7 +9,7 @@ validate quantum-sensing hardware, nor does it change production QC.
 ## Run
 
 ```powershell
-python scripts\validate_adequacy_policy.py --train-seed 20261024 --test-seed 20261124 --repeats 12 --tolerance-mhz 0.5
+python -m scripts.validate_adequacy_policy --train-seed 20261024 --test-seed 20261124 --repeats 12 --tolerance-mhz 0.5
 ```
 
 The script creates 192 train and 192 held-out rows, chooses from a
