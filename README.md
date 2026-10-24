@@ -88,3 +88,59 @@ describe **fit diagnostics only**. The heuristic thresholds have not been calibr
 with reference measurements; these are **not** absolute sensor accuracy statements,
 device-fault diagnoses, or physical anomaly labels. The selected model is the
 minimum-AICc successful candidate among baseline, single and double Lorentzian fits.
+
+## MLflow experiment tracking (SQLite, no result overwrites)
+
+Install once after the dependency change:
+
+```powershell
+python -m pip install -e ".[dev]"
+```
+
+Each diagnostic execution creates an immutable, UUID-suffixed directory under
+`reports/odmr/experiments/runs/`, and an MLflow experiment named
+`magnetiq-odmr-fit-quality`. It logs the dataset SHA-256 fingerprint, Git revision,
+model configuration, provisional QC thresholds, aggregate metrics and all plots/CSVs.
+
+```powershell
+python scripts\diagnose_odmr.py "data\raw\Dataset_10.5281zenodo.14697917.zip" --limit 0 --run-name "local-residuals-v1"
+```
+
+Tracking DB (from the repository root):
+`sqlite:///reports/odmr/experiments/mlflow.db`.
+
+View the experiment dashboard from another terminal:
+
+```powershell
+mlflow ui --backend-store-uri sqlite:///reports/odmr/experiments/mlflow.db --host 127.0.0.1 --port 5000
+```
+
+Open http://127.0.0.1:5000 and select the experiment. The tracking backend is local:
+runs are **not automatically uploaded to GitHub**, and the ignored database and
+artifacts should be backed up separately if long-term preservation matters.
+
+### Import historical diagnostics
+
+The original pre-MLflow output was already preserved separately. Register it
+without modifying that snapshot:
+
+```powershell
+python scripts\import_legacy_odmr.py "reports\odmr\snapshots\before_local_residual_checks" --archive "data\raw\Dataset_10.5281zenodo.14697917.zip"
+```
+
+This labels the run `legacy-import` and `unverified-historical` because its original
+code revision was not captured by tracking. These labels prevent a false impression
+that the original experiment was reproduced.
+
+### Compare per-spectrum decisions
+
+```powershell
+python scripts\compare_odmr_runs.py "reports\odmr\snapshots\before_local_residual_checks\fit_diagnostics.csv" "reports\odmr\experiments\runs\<NEW_RUN_DIRECTORY>\fit_diagnostics.csv"
+```
+
+The comparison refuses differently scoped cohorts and refuses to overwrite an
+existing comparison report. A change in FIT_OK counts is **not** proof of a quality
+improvement; inspect reason codes and synthetic/reference validation.
+
+To connect to a separate MLflow server, provide `--tracking-uri` or
+`MLFLOW_TRACKING_URI`. Keep experiment data and secrets out of Git.
