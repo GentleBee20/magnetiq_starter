@@ -16,6 +16,7 @@ from magnetiq.logging_config import configure_logging
 from magnetiq.processing.diagnostics import choose_fit, diagnose_fit
 from magnetiq.processing.resonance import fit_spectrum
 from magnetiq.reporting.fit_plots import plot_batch, plot_fit
+from magnetiq.reporting.mvp_report import write_measurement_report
 from magnetiq.tracking import (
     file_sha256,
     new_run_location,
@@ -82,6 +83,7 @@ def analyze_and_log(
                 row["warnings"] = ";".join(result.warnings)
                 writer.writerow(row)
     plot_batch(results, output_dir / "summary.png")
+    write_measurement_report(results, output_dir)
     metrics = summarize_rows([asdict(result) for result in results])
     mlflow.log_metrics(metrics)
     write_manifest(
