@@ -319,3 +319,25 @@ Implemented additional experimental diagnostics:
 See [Parameter Stability v2](PARAMETER_STABILITY_V2.md). No coverage
 measurements or classification improvements have been claimed yet.
 Production QC remains unchanged.
+
+## Stability v2 and bootstrap coverage smoke results — 24 October 2026
+
+Two research runs completed locally:
+- Objective-aware restart analysis: MLflow run
+  `523319d2816449718874bf000b9c54eb`, nine synthetic spectra,
+  reporting `center_stability.csv` and restart details.
+- IID residual bootstrap coverage: MLflow run
+  `3c5a07aa186747c9acaf971863d6be15`, twelve of twelve spectra
+  assessable, observed **joint empirical coverage 1/12 = 8.3%**.
+
+The observed fraction means *both* known centers landed inside their
+separate nominal 95% percentile intervals in only one spectrum. It is
+not a claim that the combined region has a calibrated 95% coverage
+target: marginal intervals and simultaneous coverage differ. Twelve
+synthetic cases are insufficient for a robust population estimate, and
+the cases reuse the same generator and correlated distortions.
+
+**Next:** inspect the per-case coverage CSV and per-restart objectives,
+distinguish clean from oscillatory failures, and estimate coverage with
+more seeds and repetitions before attempting bootstrap variants or
+changing production QC.
