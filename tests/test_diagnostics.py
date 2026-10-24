@@ -55,3 +55,19 @@ def test_localized_model_mismatch_is_flagged() -> None:
     assert "resonance_local_residual_excess" in diagnosis.warnings
     assert diagnosis.max_local_rmse_ratio is not None
     assert diagnosis.max_local_rmse_ratio > 2.0
+
+
+def test_v2_report_exposes_thresholds_and_per_resonance_metrics() -> None:
+    frequency = np.linspace(2.85, 2.89, 401)
+    parameters = np.array([1.0, 0.0, 0.04, 2.866, 0.0012, 0.03, 2.875, 0.0015])
+    rng = np.random.default_rng(11)
+    measured = evaluate_model(frequency, parameters, 2) + rng.normal(
+        0, 0.0007, len(frequency)
+    )
+    spectrum = OdmrSpectrum("test_v2", tuple(frequency), tuple(measured))
+    fits = [fit_spectrum(spectrum, n) for n in (0, 1, 2)]
+    report = diagnose_fit(spectrum, fits)
+    assert "relative_rmse=" in report.diagnostic_checks
+    assert "limit 0.15" in report.diagnostic_checks
+    assert report.resonance_1_local_rmse_ratio is not None
+    assert report.resonance_2_local_rmse_ratio is not None
