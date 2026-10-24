@@ -45,9 +45,7 @@ def run_analysis(
             members = members[:limit]
         spectra = [read_odmr(dataset, member) for member in members]
     location = new_run_location(output_dir, run_name, tracking_uri)
-    with tracked_run(
-        location, archive, limit=limit, spectrum_count=len(spectra)
-    ) as run_id:
+    with tracked_run(location, archive, limit=limit, spectrum_count=len(spectra)) as run_id:
         analyze_and_log(spectra, location.output_dir, run_id, location.tracking_uri, archive)
     logger.info("MLflow run %s | directory %s", run_id, location.output_dir)
     return location.output_dir
@@ -94,4 +92,3 @@ def analyze_and_log(
     )
     logger.info("Wrote diagnostics for %d spectra to %s", len(results), output_dir)
     logger.info("Statuses are experimental FIT diagnostics, NOT physical anomaly labels")
-
