@@ -43,6 +43,7 @@ def center_stability(
     bootstrap_trials: int = 30,
     multistart_trials: int = 12,
     near_optimal_rss_ratio: float = 1.01,
+    center_residuals: bool = False,
 ) -> CenterStability:
     """Refit fixed double-Lorentzian model using IID residual resampling and jittered starts.
 
@@ -61,6 +62,8 @@ def center_stability(
     params = np.asarray(fit.parameters, dtype=float)
     prediction = evaluate_model(frequency, params, 2)
     residual = measured - prediction
+    if center_residuals:
+        residual = residual - float(np.mean(residual))
     rng = np.random.default_rng(seed)
     bootstrap_centers: list[list[float]] = []
     for _ in range(bootstrap_trials):
