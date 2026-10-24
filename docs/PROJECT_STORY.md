@@ -116,3 +116,15 @@ then build a seeded multi-severity benchmark with separate labels for
 model mismatch, parameter accuracy, and optimizer convergence. Report
 confusion matrices and abstention/review rates on held-out cases; compare
 candidate policies without modifying historical production labels.
+
+## Ground-truth benchmarking milestone (implementation pending local validation)
+
+Added `scripts/benchmark_ground_truth.py` and
+[`docs/GROUND_TRUTH_BENCHMARK.md`](GROUND_TRUTH_BENCHMARK.md).
+The seeded experiment evaluates known synthetic resonance-center errors across
+noise, localized distortions, oscillations and curved baselines, rather than
+assuming that every intentionally distorted trace must be classified failed.
+It compares current and candidate policies via false-acceptance and
+false-failure rates. **No results have been collected or validated yet.**
+The next steps are to run the benchmark, inspect difficult cases, evaluate
+held-out seeds, and then track validated comparisons in MLflow.
