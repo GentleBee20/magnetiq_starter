@@ -128,3 +128,34 @@ It compares current and candidate policies via false-acceptance and
 false-failure rates. **No results have been collected or validated yet.**
 The next steps are to run the benchmark, inspect difficult cases, evaluate
 held-out seeds, and then track validated comparisons in MLflow.
+
+## Ground-truth benchmark result — 24 October 2026
+
+The user executed the seeded 12-draw benchmark locally with 192 synthetic
+rows and an **illustrative** maximum-center-error tolerance of 0.5 MHz.
+Ruff lint and formatting, mypy, and all 38 tests passed.
+
+| Measure | Existing QC | Experimental candidate |
+| --- | ---: | ---: |
+| FIT_OK | 124/192 | 124/192 |
+| REVIEW_REQUIRED | 68/192 | 65/192 |
+| FIT_FAILED | 0/192 | 3/192 |
+| False-accept rate given inaccurate centers | 0 | 0 |
+| False-failure rate given accurate centers | 0 | 0 |
+
+Of 192 generated rows, **173** had two resonance centers estimated within
+0.5 MHz, and **19** did not. The candidate policy reassigned three reviewed
+rows to failed; it did not change the number of accepted rows. The
+aggregate output alone does **not** reveal whether all three failed rows
+are among the 19 inaccurate ones, nor the full status × accuracy matrix;
+inspect the detailed CSV before claiming that result.
+
+**Limits:** 0.5 MHz is not a measured instrument requirement, the same
+noise is reused within parameter draws, and zero-distortion cases repeat
+within each family. This is a development benchmark, not an independent
+held-out experimental validation. Its results are not a basis for a
+production failure threshold.
+
+**Next:** Produce per-policy status × parameter-accuracy contingency
+tables; inspect the 19 inaccurate rows; test alternative held-out seeds
+and tolerances; then integrate comparative metrics with MLflow.
