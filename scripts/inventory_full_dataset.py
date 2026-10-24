@@ -30,12 +30,12 @@ def _image_dimensions(data: bytes) -> list[int] | None:
 
 
 def _inspect_text(data: bytes) -> dict[str, Any]:
-    sample = data[:65536].decode("utf-8-sig", errors="replace")
+    if b"\0" in data:\n        return {"sample": "binary_or_nul_containing", "nul_bytes": data.count(b"\0")}\n    sample = data[:65536].decode("utf-8-sig", errors="replace")
     lines = [line.strip() for line in sample.splitlines() if line.strip()]
     if not lines:
         return {"sample": "empty"}
     delim = max((",", "\t", ";"), key=lambda d: lines[0].count(d))
-    parsed = list(csv.reader(lines[:15], delimiter=delim))
+    try:\n        parsed = list(csv.reader(lines[:15], delimiter=delim))\n    except csv.Error as exc:\n        return {"sample": "malformed_text", "error": str(exc), "header_sample": lines[:4]}
     header = parsed[0] if parsed else []
     numeric_lines = 0
     widths: list[int] = []
@@ -96,7 +96,7 @@ def _inspect_zip(zf: zipfile.ZipFile, *, prefix: str = "", depth: int = 0) -> li
                     rows.extend(
                         _inspect_zip(nested, prefix=name + "::", depth=depth + 1)
                     )
-        except (OSError, ValueError, zipfile.BadZipFile, RuntimeError) as exc:
+        except (OSError, ValueError, csv.Error, zipfile.BadZipFile, RuntimeError) as exc:
             row["inspection_error"] = type(exc).__name__ + ": " + str(exc)
         rows.append(row)
     return rows
