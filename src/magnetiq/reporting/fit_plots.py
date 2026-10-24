@@ -9,6 +9,7 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.transforms import Bbox
 import numpy as np
 
 from magnetiq.data.odmr import OdmrSpectrum
@@ -85,7 +86,7 @@ def plot_fit(
         cellText=rows,
         colLabels=["Diagnostic", "Observed", "Review limit", "Result"],
         colWidths=[0.48, 0.16, 0.18, 0.18],
-        bbox=(0.0, 0.30, 1.0, 0.50),
+        bbox=Bbox.from_bounds(0.0, 0.30, 1.0, 0.50),
         cellLoc="left",
     )
     table.auto_set_font_size(False)
