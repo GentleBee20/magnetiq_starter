@@ -90,3 +90,29 @@ synthetic challenges plus independently labelled reference measurements.
 
 This document deliberately separates **completed evidence** from
 **hypotheses** and **future commitments**.
+
+## Benchmark checkpoint — 24 October 2026
+
+The first four seeded synthetic cases passed all 35 engineering tests, but
+**the experimental candidate status did not improve over existing QC**:
+
+| Case | Expected demonstration label | Current | Candidate | nRMSE | Lag-1 | Local RMSE ratio |
+| --- | --- | --- | --- | ---: | ---: | ---: |
+| Clean | adequate | FIT_OK | FIT_OK | 0.014 | 0.058 | 0.942 |
+| Local mismatch | review | FIT_OK | FIT_OK | 0.020 | 0.328 | 1.915 |
+| Global oscillation | inadequate | REVIEW_REQUIRED | REVIEW_REQUIRED | 0.150 | 0.991 | 0.458 |
+| Nonlinear baseline | inadequate | REVIEW_REQUIRED | REVIEW_REQUIRED | 0.028 | 0.818 | 0.814 |
+
+**Interpretation:** the candidate hard gate requires nRMSE > 0.20 plus a
+second severe signal, so high residual correlation alone never produces a
+failure. Localized mismatch fell just below the review ratio of 2.0. An
+artificially imposed label of `inadequate` is a hypothesis, not proof of
+unacceptable resonance parameter accuracy. The local noise denominator can
+also be inflated by structured off-resonance residuals.
+
+**Next decision:** define a fit-failure *target* (for example, error in
+estimated resonance center relative to an explicitly declared tolerance),
+then build a seeded multi-severity benchmark with separate labels for
+model mismatch, parameter accuracy, and optimizer convergence. Report
+confusion matrices and abstention/review rates on held-out cases; compare
+candidate policies without modifying historical production labels.
