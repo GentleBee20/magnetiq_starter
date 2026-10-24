@@ -44,12 +44,15 @@ def center_stability(
     multistart_trials: int = 12,
     near_optimal_rss_ratio: float = 1.01,
     center_residuals: bool = False,
+    gaussian_noise_std: float | None = None,
 ) -> CenterStability:
     """Refit fixed double-Lorentzian model using IID residual resampling and jittered starts.
 
     Does not reselect model order. IID resampling ignores correlation and can be
     misleading when the model is misspecified; assess empirical coverage separately.
     """
+    if gaussian_noise_std is not None and gaussian_noise_std <= 0:
+        raise ValueError("gaussian_noise_std must be positive")
     if near_optimal_rss_ratio < 1.0:
         raise ValueError("near_optimal_rss_ratio must be >= 1")
     if bootstrap_trials < 1 or multistart_trials < 1:
@@ -67,7 +70,12 @@ def center_stability(
     rng = np.random.default_rng(seed)
     bootstrap_centers: list[list[float]] = []
     for _ in range(bootstrap_trials):
-        sampled = prediction + rng.choice(residual, size=len(residual), replace=True)
+        noise = (
+            rng.normal(0.0, gaussian_noise_std, len(residual))
+            if gaussian_noise_std is not None
+            else rng.choice(residual, size=len(residual), replace=True)
+        )
+        sampled = prediction + noise
         synthetic = OdmrSpectrum(spectrum.source, tuple(frequency), tuple(sampled))
         refit = fit_spectrum(synthetic, 2)
         if refit.success and len(refit.parameters) == 8:
