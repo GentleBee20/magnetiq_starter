@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from magnetiq.data.odmr import OdmrSpectrum
-from magnetiq.processing.diagnostics import FitDiagnostics, MODEL_PEAKS
+from magnetiq.processing.diagnostics import MODEL_PEAKS, FitDiagnostics
 from magnetiq.processing.resonance import ResonanceFit, evaluate_model
 
 
