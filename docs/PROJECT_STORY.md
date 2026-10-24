@@ -619,3 +619,104 @@ development/held-out comparisons, and tests. See
 penalty of 8 is exploratory rather than a calibrated multiple-period
 search correction. No benchmark outcome is claimed until local or CI
 verification and held-out execution; production fitting/QC unchanged.
+
+## Phase 2 — Generalization beyond sinusoidal interference
+
+After merging PR #2 into `main`, began a separate research branch
+`feat/odmr-robustness`. Added reproducible, paired synthetic challenges:
+clean, single-sine, two-tone, frequency chirp, harmonics and curved
+baseline, each scored under an independent shifted regime. The
+benchmark compares true center-estimation error of baseline,
+fixed-grid nuisance, continuous nuisance and conservatively selected
+fits. It writes new MLflow artifacts and has reproducibility tests.
+See [the Phase 2 study](ROBUSTNESS_STUDY.md).
+
+**Evidence status:** implementation committed; CI and experiment results
+not yet verified. Do not conclude generalization or alter production
+QC based solely on this implementation.
+
+## Phase 2 shifted non-sinusoidal benchmark — 24 October 2026
+
+Run `ed1b659f8ca643aca51236ccfe5b6601` (local MLflow),
+seeded development 20261024 vs shifted 20271124, 12 independent
+latent draws × six distortion families per split (144 total).
+Illustrative parameter-accuracy tolerance: 0.5 MHz.
+
+Shifted-set mean maximum two-center errors in MHz, **baseline →
+penalty-selected**: clean 0.009684→0.009733; single sine
+0.816143→0.012849; two-tone 1.157723→1.043113; chirp
+1.115554→1.233618; harmonics 0.491877→0.110712; curved
+baseline 0.013236→0.015550.
+
+Nuisance was selected on shifted cases 1/12 clean, 12/12 single
+sine, 12/12 two-tone, 12/12 chirp, 12/12 harmonics and 6/12
+curved baseline. Nine selected shifted fits exceeded the illustrative
+0.5 MHz error tolerance: **three two-tone and six chirp**; no
+selected failures for the other families.
+
+The strong positive single-sine and harmonic results coexist with
+weak two-tone results and a negative chirp result (mean error increased
+10.6%). This benchmark explicitly refutes unrestricted
+generalization from the original sinusoidal research successes.
+No production model or QC policy was changed.
+
+**Next:** inspect per-case errors in `robustness_cases.csv`,
+compare baseline and selected false/true acceptances on each shifted
+family, and consider a separate abstention/model-mismatch warning
+rather than automatically trusting an AICc-preferred nuisance model.
+Do not tune against the same held-out split and then reuse it as
+untouched evidence.
+
+## Phase 2 per-case reliability audit — 24 October 2026
+
+Inspected uploaded 144-case `robustness_cases.csv` plus study summary.
+
+Exactly **nine shifted cases** exceeded the illustrative 0.5 MHz
+two-center error tolerance after penalty-based selection: three
+two-tone and six chirp cases. All selected the refined nuisance fit.
+
+| Case | Baseline max error MHz | Selected max error MHz | Refined RMSE improvement |
+| --- | ---: | ---: | ---: |
+| shift_000_two_tone | 0.973 | 0.774 | 27.0% |
+| shift_002_two_tone | 8.605 | 8.938 | 19.4% |
+| shift_005_two_tone | 0.790 | 0.673 | 30.4% |
+| shift_001_chirp | 0.481 | 0.680 | 6.9% |
+| shift_003_chirp | 0.375 | 0.822 | 10.4% |
+| shift_005_chirp | 0.552 | 0.573 | 11.0% |
+| shift_006_chirp | 0.590 | 0.735 | 10.3% |
+| shift_007_chirp | 9.685 | 9.567 | 11.0% |
+| shift_008_chirp | 0.391 | 0.602 | 7.7% |
+
+**Three newly inaccurate chirp decisions** (`shift_001_chirp`,
+`shift_003_chirp`, `shift_008_chirp`) had baseline errors below
+0.5 MHz but selected-model errors above 0.5 MHz. All nine cases
+reduced residual RMSE while some center estimates worsened.
+
+Mean shifted RMSE reductions: single sine 86.7%, harmonics 57.9%,
+two-tone 29.8%, chirp 8.8%, clean 0.8%, curved baseline 1.7%.
+Substantial RMSE improvements are therefore not proof of center
+accuracy, particularly for two-tone distortions.
+
+**Diagnostic gap:** the existing benchmark CSV exports absolute
+center-error magnitudes, fitted periods and RMSE but does not export
+individual baseline/refined centers, signed errors, or spectral residual
+features. Therefore it does not establish actual center displacement,
+peak identity or a valid new alert threshold.
+
+**Next:** add center coordinates, signed errors, residual correlation
+and frequency-dependent residual metrics to new immutable run
+artifacts. Develop any model-mismatch warning on a distinct development
+cohort and validate on genuinely untouched seeds/regimes. Production
+FIT_OK/REVIEW_REQUIRED/FIT_FAILED rules remain unchanged.
+
+## MVP packaging — 24 October 2026
+
+The first MVP integration adds `measurement_report.json` and `measurement_report.html` to the existing `scripts.diagnose_odmr` analysis run, alongside CSV and fit plots. Statuses remain provisional fit diagnostics, not calibrated measurement or current-map quality. The interface still uses the existing CLI; a streamlined installed command, reference manifest, polished demonstration and release validation remain outstanding. CI not yet verified for these commits.
+
+## MVP full real-data pilot — 24 October 2026
+
+Local execution of `python -m scripts.diagnose_odmr <Zenodo archive> --limit 0 --run-name magnetiq-mvp-pilot` completed 105 ODMR spectra without a fatal error. Provisional model-fit classifications: 36 `FIT_OK`, 69 `REVIEW_REQUIRED`, 0 `FIT_FAILED`; these are not validated true-positive/false-positive hardware quality labels. MLflow run `f1fdb16c8c324ac7952fdbe8bb6c2585` and immutable local directory `reports/odmr/experiments/runs/20261024T201054Z_e8eeacc00f`. The terminal log proves processing and experiment registration, not independent inspection of the new HTML/JSON report contents. Current branch CI still has Ruff import-order failure; release remains blocked pending CI and report inspection.
+
+## MVP artifact catalogue and explanatory reports — 24 October 2026
+
+After successful CI on commit `3f0c65b4`, added a curated mapping of existing provisional diagnostic reason codes to category, investigation stage, interpretation and suggested next check. HTML reports show investigation guidance; JSON adds structured `artifact_explanations` per spectrum. Unknown codes are explicitly unclassified; warnings are not confirmed physical root causes. Production fit models, QC thresholds and statuses remain unchanged. Fresh CI and real-data report verification are still required for the new commits.
