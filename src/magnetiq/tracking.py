@@ -43,7 +43,10 @@ def git_revision() -> str:
     """Return the exact source revision, or an explicit unknown marker."""
     try:
         result = subprocess.run(
-            ["git", "rev-parse", "HEAD"], check=True, capture_output=True, text=True,
+            ["git", "rev-parse", "HEAD"],
+            check=True,
+            capture_output=True,
+            text=True,
             timeout=5,
         )
     except (OSError, subprocess.SubprocessError):
@@ -60,7 +63,7 @@ def new_run_location(
     resolved_name = run_name or f"odmr-{created}-{identifier}"
     output_dir = root / "runs" / f"{created}_{identifier}"
     output_dir.mkdir(parents=True, exist_ok=False)
-    default_uri = f"sqlite:///{(root / 'mlflow.db').resolve().as_posix()}"
+    default_uri = f"sqlite:///{(root / 'mlflow.db').as_posix()}"
     uri = tracking_uri or os.environ.get("MLFLOW_TRACKING_URI") or default_uri
     return RunLocation(output_dir, resolved_name, uri)
 
@@ -74,7 +77,7 @@ def summarize_rows(rows: list[dict[str, object]]) -> dict[str, float]:
         "fit_failed": float(sum(row["status"] == "FIT_FAILED" for row in rows)),
     }
     for key in ("rmse", "normalized_rmse", "max_local_rmse_ratio"):
-        values = [float(row[key]) for row in rows if row.get(key) is not None]
+        values = [float(value) for row in rows if isinstance((value := row.get(key)), (int, float))]
         finite = [value for value in values if np.isfinite(value)]
         if finite:
             totals[f"median_{key}"] = float(np.median(finite))
