@@ -62,27 +62,56 @@ def plot_fit(
         fontweight="bold",
     )
     reasons = ", ".join(diagnosis.warnings) if diagnosis.warnings else "No heuristic warnings"
-    report_lines = [
-        f"Warnings: {reasons}",
-        f"RMSE: {diagnosis.rmse:.4g} | Relative RMSE: {diagnosis.normalized_rmse:.3g} (limit 0.15)",
-        f"|Lag-1 residual correlation|: {abs(diagnosis.lag1_residual_correlation):.3g} (limit 0.7)",
-        f"Local RMSE / off-res noise: R1={diagnosis.resonance_1_local_rmse_ratio}, "
-        f"R2={diagnosis.resonance_2_local_rmse_ratio} (limit 2)",
-        f"Local bias / off-res noise: R1={diagnosis.resonance_1_local_bias_ratio}, "
-        f"R2={diagnosis.resonance_2_local_bias_ratio} (limit 1)",
-        "Orange shading: +/- 2 fitted Lorentzian half-widths at each resonance",
-        "Status is provisional fitting QC; NOT a calibrated measurement or hardware verdict.",
+    def metric_row(label: str, value: float | None, threshold: float) -> list[str]:
+        if value is None or not np.isfinite(value):
+            return [label, "N/A", f"<= {threshold:g}", "N/A"]
+        return [
+            label,
+            f"{value:.3g}",
+            f"<= {threshold:g}",
+            "PASS" if value <= threshold else "REVIEW",
+        ]
+
+    rows = [
+        metric_row("Relative RMSE", diagnosis.normalized_rmse, 0.15),
+        metric_row(
+            "Absolute lag-1 correlation", abs(diagnosis.lag1_residual_correlation), 0.7
+        ),
+        metric_row("Resonance 1 local RMSE / noise", diagnosis.resonance_1_local_rmse_ratio, 2.0),
+        metric_row("Resonance 2 local RMSE / noise", diagnosis.resonance_2_local_rmse_ratio, 2.0),
+        metric_row("Resonance 1 local bias / noise", diagnosis.resonance_1_local_bias_ratio, 1.0),
+        metric_row("Resonance 2 local bias / noise", diagnosis.resonance_2_local_bias_ratio, 1.0),
     ]
-    diagnostics_axis.text(
-        0.0,
-        0.81,
-        "\\n".join(report_lines),
-        transform=diagnostics_axis.transAxes,
-        va="top",
-        fontsize=8.5,
-        linespacing=1.45,
+    table = diagnostics_axis.table(
+        cellText=rows,
+        colLabels=["Diagnostic", "Observed", "Review limit", "Result"],
+        colWidths=[0.48, 0.16, 0.18, 0.18],
+        bbox=[0.0, 0.16, 1.0, 0.64],
+        cellLoc="left",
     )
-    figure.subplots_adjust(left=0.10, right=0.96, top=0.93, bottom=0.08, hspace=0.34)
+    table.auto_set_font_size(False)
+    table.set_fontsize(8)
+    for row_number in range(1, len(rows) + 1):
+        result_cell = table[row_number, 3]
+        if rows[row_number - 1][3] == "REVIEW":
+            result_cell.set_facecolor("#ffe9d0")
+        elif rows[row_number - 1][3] == "N/A":
+            result_cell.set_facecolor("#eeeeee")
+    reasons = ", ".join(diagnosis.warnings) if diagnosis.warnings else "none"
+    diagnostics_axis.text(
+        0.0, 0.11, f"Warnings: {reasons}", transform=diagnostics_axis.transAxes,
+        va="top", fontsize=8, wrap=True,
+    )
+    diagnostics_axis.text(
+        0.0, -0.07,
+        "Orange shading: +/- 2 resonance half-widths (inspection windows; not uncertainty).",
+        transform=diagnostics_axis.transAxes, fontsize=7.5,
+    )
+    diagnostics_axis.text(
+        0.0, -0.17, "Provisional fit QC only; not a sensor or device-fault diagnosis.",
+        transform=diagnostics_axis.transAxes, fontsize=7.5,
+    )
+    figure.subplots_adjust(left=0.10, right=0.96, top=0.93, bottom=0.12, hspace=0.35)
     output.parent.mkdir(parents=True, exist_ok=True)
     figure.savefig(output, dpi=160)
     plt.close(figure)
