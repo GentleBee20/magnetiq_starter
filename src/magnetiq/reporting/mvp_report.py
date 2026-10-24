@@ -48,11 +48,17 @@ def write_measurement_report(results: list[FitDiagnostics], output_dir: Path) ->
         + "</td><td>"
         + escape(result.model)
         + "</td><td>"
-        + escape("; ".join(
-            explanation["code"] + " (" + explanation["investigation_stage"] + "): "
-            + explanation["next_check"]
-            for explanation in describe_warnings(result.warnings)
-        ) or "No provisional warnings")
+        + escape(
+            "; ".join(
+                explanation["code"]
+                + " ("
+                + explanation["investigation_stage"]
+                + "): "
+                + explanation["next_check"]
+                for explanation in describe_warnings(result.warnings)
+            )
+            or "No provisional warnings"
+        )
         + "</td></tr>"
         for result in results
     )
