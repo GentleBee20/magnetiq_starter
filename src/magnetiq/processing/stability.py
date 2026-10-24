@@ -100,13 +100,19 @@ def center_stability(
     width: float | None = None
     if len(bootstrap_centers) >= 2:
         array = np.asarray(bootstrap_centers)
-        width = float(np.max(np.percentile(array, 97.5, axis=0) -
-                             np.percentile(array, 2.5, axis=0)) * 1000)
+        width = float(
+            np.max(np.percentile(array, 97.5, axis=0) - np.percentile(array, 2.5, axis=0))
+            * 1000
+        )
     spread: float | None = None
     if len(multistart_centers) >= 2:
         array = np.asarray(multistart_centers)
         spread = float(np.max(np.ptp(array, axis=0)) * 1000)
     return CenterStability(
-        len(bootstrap_centers), bootstrap_trials, width,
-        len(multistart_centers), multistart_trials, spread,
+        len(bootstrap_centers),
+        bootstrap_trials,
+        width,
+        len(multistart_centers),
+        multistart_trials,
+        spread,
     )
