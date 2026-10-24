@@ -64,18 +64,30 @@ def refine_period(
         [
             float(np.min(y)) - signal_range,
             -10 * signal_range / span,
-            0.0, float(x[0]), max(spacing / 4, 1e-9),
-            0.0, float(x[0]), max(spacing / 4, 1e-9),
-            -2 * signal_range, -2 * signal_range, min(periods_ghz),
+            0.0,
+            float(x[0]),
+            max(spacing / 4, 1e-9),
+            0.0,
+            float(x[0]),
+            max(spacing / 4, 1e-9),
+            -2 * signal_range,
+            -2 * signal_range,
+            min(periods_ghz),
         ]
     )
     upper = np.asarray(
         [
             float(np.max(y)) + signal_range,
             10 * signal_range / span,
-            max(2 * signal_range, 1e-5), float(x[-1]), span / 2,
-            max(2 * signal_range, 1e-5), float(x[-1]), span / 2,
-            2 * signal_range, 2 * signal_range, max(periods_ghz),
+            max(2 * signal_range, 1e-5),
+            float(x[-1]),
+            span / 2,
+            max(2 * signal_range, 1e-5),
+            float(x[-1]),
+            span / 2,
+            2 * signal_range,
+            2 * signal_range,
+            max(periods_ghz),
         ]
     )
     initial = np.asarray([*fixed.parameters, fixed.period_ghz], dtype=float)
@@ -86,7 +98,10 @@ def refine_period(
         return cast(np.ndarray, sinusoidal_model(x, p[:10], float(p[10])) - y)
 
     result = least_squares(
-        residual, x0=initial, bounds=(lower, upper), max_nfev=2400,
+        residual,
+        x0=initial,
+        bounds=(lower, upper),
+        max_nfev=2400,
         x_scale="jac",
     )
     if not result.success or not np.all(np.isfinite(result.x)):
@@ -96,8 +111,11 @@ def refine_period(
     n, k = len(x), 11
     aicc = float(n * np.log(rss / n) + 2 * k + 2 * k * (k + 1) / (n - k - 1))
     return NuisanceFit(
-        True, tuple(float(v) for v in result.x[:10]),
+        True,
+        tuple(float(v) for v in result.x[:10]),
         float(result.x[10]),
         float(np.hypot(result.x[8], result.x[9])),
-        float(np.sqrt(rss / n)), aicc, "continuous period refinement",
+        float(np.sqrt(rss / n)),
+        aicc,
+        "continuous period refinement",
     )
