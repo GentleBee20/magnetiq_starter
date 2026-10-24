@@ -26,26 +26,37 @@ def main() -> None:
         parser.error("--limit must be positive")
     configure_logging()
     with ZipFile(args.archive) as archive:
-        names = list_odmr_members(archive)[:args.limit]
+        names = list_odmr_members(archive)[: args.limit]
         spectra = [read_odmr(archive, name) for name in names]
     rows = []
     for spectrum in spectra:
         fits = [fit_spectrum(spectrum, peaks) for peaks in (0, 1, 2)]
         for fit in fits:
-            rows.append({"source": fit.source, "model": fit.model, "success": fit.success,
-                         "rmse": fit.rmse, "aicc": fit.aicc, "parameters": repr(fit.parameters),
-                         "reason": fit.reason})
+            rows.append(
+                {
+                    "source": fit.source,
+                    "model": fit.model,
+                    "success": fit.success,
+                    "rmse": fit.rmse,
+                    "aicc": fit.aicc,
+                    "parameters": repr(fit.parameters),
+                    "reason": fit.reason,
+                }
+            )
         successful = [fit for fit in fits if fit.success]
         if successful:
             chosen = min(successful, key=lambda fit: fit.aicc)
-            logger.info("%s: preferred candidate %s (AICc %.2f)",
-                        spectrum.source, chosen.model, chosen.aicc)
+            logger.info(
+                "%s: preferred candidate %s (AICc %.2f)", spectrum.source, chosen.model, chosen.aicc
+            )
         else:
             logger.warning("%s: no successful fits", spectrum.source)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=["source", "model", "success",
-                                                      "rmse", "aicc", "parameters", "reason"])
+        writer = csv.DictWriter(
+            handle,
+            fieldnames=["source", "model", "success", "rmse", "aicc", "parameters", "reason"],
+        )
         writer.writeheader()
         writer.writerows(rows)
     logger.info("Saved %d model-fitting records to %s", len(rows), args.output)
