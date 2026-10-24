@@ -1,62 +1,36 @@
-"""Inventory a research ZIP archive without extracting any contents."""
+"""Command-line tool for inventorying scientific ZIP archives."""
+
 from __future__ import annotations
+
 import argparse
-import csv
-import json
-from collections import Counter
+import logging
 from pathlib import Path
-from zipfile import BadZipFile, ZipFile, is_zipfile
+from zipfile import BadZipFile
 
+from magnetiq.data.archive import inspect
+from magnetiq.logging_config import configure_logging
 
-def inspect(path: Path, out_dir: Path) -> dict:
-    if not path.is_file():
-        raise FileNotFoundError(f"Archive not found: {path}")
-    if not is_zipfile(path):
-        raise ValueError(f"Not a valid ZIP archive: {path}")
-
-    with ZipFile(path) as archive:
-        entries = []
-        for info in archive.infolist():
-            if info.is_dir():
-                continue
-            entries.append({
-                "name": info.filename,
-                "bytes": info.file_size,
-                "compressed_bytes": info.compress_size,
-                "extension": Path(info.filename).suffix.lower() or "(none)",
-                "encrypted": bool(info.flag_bits & 0x1),
-            })
-    summary = {
-        "source_archive": path.name,
-        "archive_size_bytes": path.stat().st_size,
-        "n_files": len(entries),
-        "extensions": dict(sorted(Counter(e["extension"] for e in entries).items())),
-        "files": entries,
-    }
-    out_dir.mkdir(parents=True, exist_ok=True)
-    (out_dir / "archive_inventory.json").write_text(json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8")
-    with (out_dir / "archive_inventory.csv").open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=["name", "bytes", "compressed_bytes", "extension", "encrypted"])
-        writer.writeheader()
-        writer.writerows(entries)
-    return summary
+logger = logging.getLogger(__name__)
 
 
 def main() -> None:
+    """Inspect the requested archive and write a machine-readable manifest."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("archive", type=Path)
     parser.add_argument("--output-dir", type=Path, default=Path("reports"))
     args = parser.parse_args()
+    configure_logging()
+
     try:
         result = inspect(args.archive, args.output_dir)
-    except (FileNotFoundError, ValueError, BadZipFile) as exc:
+    except (FileNotFoundError, ValueError, BadZipFile, OSError) as exc:
         parser.error(str(exc))
-    print(f"Files: {result['n_files']}")
-    print("Extensions:", result["extensions"])
-    print("First 30 filenames:")
-    for item in result["files"][:30]:
-        print(f"  {item['name']} ({item['bytes']:,} bytes)")
-    print(f"Full manifest: {args.output_dir / 'archive_inventory.csv'}")
+
+    logger.info("Found %d files", result["n_files"])
+    logger.info("File extensions: %s", result["extensions"])
+    for entry in result["files"][:30]:
+        logger.info("File: %s | Size: %d bytes", entry["name"], entry["bytes"])
+    logger.info("Full manifest: %s", args.output_dir / "archive_inventory.csv")
 
 
 if __name__ == "__main__":
