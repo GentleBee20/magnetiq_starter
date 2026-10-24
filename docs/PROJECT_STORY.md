@@ -634,3 +634,35 @@ See [the Phase 2 study](ROBUSTNESS_STUDY.md).
 **Evidence status:** implementation committed; CI and experiment results
 not yet verified. Do not conclude generalization or alter production
 QC based solely on this implementation.
+
+## Phase 2 shifted non-sinusoidal benchmark — 24 October 2026
+
+Run `ed1b659f8ca643aca51236ccfe5b6601` (local MLflow),
+seeded development 20261024 vs shifted 20271124, 12 independent
+latent draws × six distortion families per split (144 total).
+Illustrative parameter-accuracy tolerance: 0.5 MHz.
+
+Shifted-set mean maximum two-center errors in MHz, **baseline →
+penalty-selected**: clean 0.009684→0.009733; single sine
+0.816143→0.012849; two-tone 1.157723→1.043113; chirp
+1.115554→1.233618; harmonics 0.491877→0.110712; curved
+baseline 0.013236→0.015550.
+
+Nuisance was selected on shifted cases 1/12 clean, 12/12 single
+sine, 12/12 two-tone, 12/12 chirp, 12/12 harmonics and 6/12
+curved baseline. Nine selected shifted fits exceeded the illustrative
+0.5 MHz error tolerance: **three two-tone and six chirp**; no
+selected failures for the other families.
+
+The strong positive single-sine and harmonic results coexist with
+weak two-tone results and a negative chirp result (mean error increased
+10.6%). This benchmark explicitly refutes unrestricted
+generalization from the original sinusoidal research successes.
+No production model or QC policy was changed.
+
+**Next:** inspect per-case errors in `robustness_cases.csv`,
+compare baseline and selected false/true acceptances on each shifted
+family, and consider a separate abstention/model-mismatch warning
+rather than automatically trusting an AICc-preferred nuisance model.
+Do not tune against the same held-out split and then reuse it as
+untouched evidence.
