@@ -32,6 +32,15 @@ def plot_fit(
             if center is not None:
                 axis.axvline(center, linestyle=":", linewidth=0.8, color="gray")
         residual_axis.plot(frequency, measured - prediction, linewidth=0.9)
+        for center, width_mhz in (
+            (diagnosis.center_1_ghz, diagnosis.width_1_mhz),
+            (diagnosis.center_2_ghz, diagnosis.width_2_mhz),
+        ):
+            if center is not None and width_mhz is not None:
+                half_width = 2 * width_mhz / 1000
+                residual_axis.axvspan(
+                    center - half_width, center + half_width, color="orange", alpha=0.12
+                )
     else:
         residual_axis.text(0.5, 0.5, "Fit failed", transform=residual_axis.transAxes, ha="center")
     residual_axis.axhline(0, color="black", linewidth=0.7)
