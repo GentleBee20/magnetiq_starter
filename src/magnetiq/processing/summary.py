@@ -31,10 +31,7 @@ def summarize_spectrum(spectrum: OdmrSpectrum) -> SpectrumSummary:
     """Summarize observed data without fitting or changing measured values."""
     contrast = spectrum.normalized_contrast
     midpoint = statistics.median(contrast)
-    differences = [
-        abs(later - earlier)
-        for earlier, later in zip(contrast, contrast[1:])
-    ]
+    differences = [abs(later - earlier) for earlier, later in zip(contrast, contrast[1:], strict=False)]
     minimum_index = min(range(len(contrast)), key=contrast.__getitem__)
     return SpectrumSummary(
         source=spectrum.source,
