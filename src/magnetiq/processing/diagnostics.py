@@ -142,7 +142,6 @@ def diagnose_fit(spectrum: OdmrSpectrum, fits: list[ResonanceFit]) -> FitDiagnos
         return float(peak_params[index][item] * scale) if len(peak_params) > index else None
 
     return FitDiagnostics(
-<<<<<<< HEAD
         spectrum.source,
         fit.model,
         "REVIEW_REQUIRED" if warnings else "FIT_OK",
@@ -159,12 +158,6 @@ def diagnose_fit(spectrum: OdmrSpectrum, fits: list[ResonanceFit]) -> FitDiagnos
         field(1, 2, 1000),
         field(0, 0),
         field(1, 0),
-=======
-        spectrum.source, fit.model, "REVIEW_REQUIRED" if warnings else "FIT_OK",
-        tuple(dict.fromkeys(warnings)), fit.rmse, normalized,
-        float(np.max(np.abs(residual))), lag1, delta,
-        field(0, 1), field(1, 1), separation,
-        field(0, 2, 1000), field(1, 2, 1000), field(0, 0), field(1, 0),
-        max_local_rmse, max_local_bias,
->>>>>>> 2a7cb2efb9c3dfd97763e3b97c087af009bb06c7
+        max_local_rmse,
+        max_local_bias,
     )
