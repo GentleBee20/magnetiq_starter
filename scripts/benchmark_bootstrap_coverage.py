@@ -2,6 +2,7 @@
 
 Run: python -m scripts.benchmark_bootstrap_coverage
 """
+
 from __future__ import annotations
 
 import argparse
@@ -31,7 +32,8 @@ def main() -> None:
         parser.error("All trial counts must be positive")
 
     cases = [
-        case for case in make_cases(args.seed, args.repeats)
+        case
+        for case in make_cases(args.seed, args.repeats)
         if case[0].endswith(("clean_0", "oscillation_1", "oscillation_2"))
     ]
     rows: list[dict[str, object]] = []
@@ -90,9 +92,7 @@ def main() -> None:
                 "quality_labels": "research-only",
             }
         )
-        mlflow.log_params(
-            {"seed": args.seed, "repeats": args.repeats, "bootstrap": args.bootstrap}
-        )
+        mlflow.log_params({"seed": args.seed, "repeats": args.repeats, "bootstrap": args.bootstrap})
         mlflow.log_metric("total_cases", float(len(rows)))
         mlflow.log_metric("assessable_cases", float(len(evaluable)))
         if np.isfinite(coverage):

@@ -86,16 +86,30 @@ def center_stability(
     span = float(np.ptp(frequency))
     spacing = float(np.median(np.diff(frequency)))
     signal_range = max(float(np.ptp(measured)), 1e-6)
-    lower = np.asarray([
-        float(np.min(measured)) - signal_range, -10 * signal_range / span,
-        0, frequency[0], max(spacing / 4, 1e-9),
-        0, frequency[0], max(spacing / 4, 1e-9),
-    ])
-    upper = np.asarray([
-        float(np.max(measured)) + signal_range, 10 * signal_range / span,
-        max(2 * signal_range, 1e-5), frequency[-1], span / 2,
-        max(2 * signal_range, 1e-5), frequency[-1], span / 2,
-    ])
+    lower = np.asarray(
+        [
+            float(np.min(measured)) - signal_range,
+            -10 * signal_range / span,
+            0,
+            frequency[0],
+            max(spacing / 4, 1e-9),
+            0,
+            frequency[0],
+            max(spacing / 4, 1e-9),
+        ]
+    )
+    upper = np.asarray(
+        [
+            float(np.max(measured)) + signal_range,
+            10 * signal_range / span,
+            max(2 * signal_range, 1e-5),
+            frequency[-1],
+            span / 2,
+            max(2 * signal_range, 1e-5),
+            frequency[-1],
+            span / 2,
+        ]
+    )
     multistart_centers: list[list[float]] = []
     restart_details: list[tuple[float, float, float, float, bool]] = []
     baseline_rss = float(np.sum(residual**2))
@@ -136,23 +150,16 @@ def center_stability(
         interval_1 = (float(bounds[0, 0]), float(bounds[1, 0]))
         interval_2 = (float(bounds[0, 1]), float(bounds[1, 1]))
         width = float(
-            np.max(np.percentile(array, 97.5, axis=0) - np.percentile(array, 2.5, axis=0))
-            * 1000
+            np.max(np.percentile(array, 97.5, axis=0) - np.percentile(array, 2.5, axis=0)) * 1000
         )
     spread: float | None = None
     if len(multistart_centers) >= 2:
         array = np.asarray(multistart_centers)
         spread = float(np.max(np.ptp(array, axis=0)) * 1000)
     near = [
-        [detail[0], detail[1]]
-        for detail in restart_details
-        if detail[3] <= near_optimal_rss_ratio
+        [detail[0], detail[1]] for detail in restart_details if detail[3] <= near_optimal_rss_ratio
     ]
-    near_range = (
-        float(np.max(np.ptp(np.asarray(near), axis=0)) * 1000)
-        if len(near) >= 2
-        else None
-    )
+    near_range = float(np.max(np.ptp(np.asarray(near), axis=0)) * 1000) if len(near) >= 2 else None
     return CenterStability(
         len(bootstrap_centers),
         bootstrap_trials,

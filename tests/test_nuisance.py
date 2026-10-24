@@ -1,4 +1,5 @@
 """Unit tests for research-only sinusoidal nuisance fitting."""
+
 import numpy as np
 import pytest
 

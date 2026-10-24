@@ -2,6 +2,7 @@
 
 Run: python -m scripts.benchmark_nuisance
 """
+
 from __future__ import annotations
 
 import argparse
@@ -30,11 +31,18 @@ def make_cases(
     for index in range(repeats):
         c1 = float(rng.uniform(2.862, 2.867))
         c2 = float(rng.uniform(2.873, 2.879))
-        params = np.array([
-            1.0, float(rng.uniform(-0.1, 0.1)),
-            float(rng.uniform(0.025, 0.055)), c1, float(rng.uniform(0.0008, 0.0016)),
-            float(rng.uniform(0.025, 0.055)), c2, float(rng.uniform(0.0008, 0.0016)),
-        ])
+        params = np.array(
+            [
+                1.0,
+                float(rng.uniform(-0.1, 0.1)),
+                float(rng.uniform(0.025, 0.055)),
+                c1,
+                float(rng.uniform(0.0008, 0.0016)),
+                float(rng.uniform(0.025, 0.055)),
+                c2,
+                float(rng.uniform(0.0008, 0.0016)),
+            ]
+        )
         clean = evaluate_model(frequency, params, 2)
         for kind in ("clean", "oscillation_low", "oscillation_high"):
             noise = rng.normal(0, 0.0006, len(frequency))
@@ -42,8 +50,7 @@ def make_cases(
             if kind != "clean":
                 amplitude = 0.006 if kind == "oscillation_low" else 0.012
                 contamination = amplitude * np.sin(
-                    2 * np.pi * (frequency - frequency[0]) / periods[index % 3]
-                    + phases[index % 3]
+                    2 * np.pi * (frequency - frequency[0]) / periods[index % 3] + phases[index % 3]
                 )
             name = f"{'heldout' if heldout else 'train'}_{index:03d}_{kind}"
             cases.append((name, kind, c1, c2, frequency, clean + noise + contamination))
@@ -68,15 +75,21 @@ def summarize(rows: list[dict[str, object]]) -> dict[str, dict[str, float]]:
             if group:
                 out[f"{split}_{kind}"] = {
                     "n": float(len(group)),
-                    "baseline_mean_error_mhz": float(np.nanmean(
-                        np.asarray([r["baseline_error_mhz"] for r in group], dtype=float)
-                    )),
-                    "nuisance_mean_error_mhz": float(np.nanmean(
-                        np.asarray([r["nuisance_error_mhz"] for r in group], dtype=float)
-                    )),
-                    "selected_mean_error_mhz": float(np.nanmean(
-                        np.asarray([r["selected_error_mhz"] for r in group], dtype=float)
-                    )),
+                    "baseline_mean_error_mhz": float(
+                        np.nanmean(
+                            np.asarray([r["baseline_error_mhz"] for r in group], dtype=float)
+                        )
+                    ),
+                    "nuisance_mean_error_mhz": float(
+                        np.nanmean(
+                            np.asarray([r["nuisance_error_mhz"] for r in group], dtype=float)
+                        )
+                    ),
+                    "selected_mean_error_mhz": float(
+                        np.nanmean(
+                            np.asarray([r["selected_error_mhz"] for r in group], dtype=float)
+                        )
+                    ),
                     "nuisance_selected": float(sum(bool(r["select_nuisance"]) for r in group)),
                 }
     return out
@@ -100,27 +113,44 @@ def main() -> None:
             nuisance = fit_sinusoidal_nuisance(spectrum, baseline)
             baseline_error = center_error(
                 [baseline.parameters[3], baseline.parameters[6]]
-                if baseline.success and len(baseline.parameters) == 8 else [], (c1, c2)
+                if baseline.success and len(baseline.parameters) == 8
+                else [],
+                (c1, c2),
             )
             nuisance_error = center_error(
-                [nuisance.parameters[3], nuisance.parameters[6]]
-                if nuisance.success else [], (c1, c2)
+                [nuisance.parameters[3], nuisance.parameters[6]] if nuisance.success else [],
+                (c1, c2),
             )
             selected = bool(nuisance.success and nuisance.aicc < baseline.aicc)
             selected_error = nuisance_error if selected else baseline_error
-            rows.append({
-                "case": name, "split": "heldout" if heldout else "train", "kind": kind,
-                "truth_1_ghz": c1, "truth_2_ghz": c2,
-                "baseline_error_mhz": baseline_error, "nuisance_error_mhz": nuisance_error,
-                "selected_error_mhz": selected_error, "select_nuisance": selected,
-                "baseline_accurate": bool(np.isfinite(baseline_error) and baseline_error <= args.tolerance_mhz),
-                "nuisance_accurate": bool(np.isfinite(nuisance_error) and nuisance_error <= args.tolerance_mhz),
-                "selected_accurate": bool(np.isfinite(selected_error) and selected_error <= args.tolerance_mhz),
-                "baseline_aicc": baseline.aicc, "nuisance_aicc": nuisance.aicc,
-                "baseline_rmse": baseline.rmse, "nuisance_rmse": nuisance.rmse,
-                "nuisance_period_ghz": nuisance.period_ghz,
-                "nuisance_amplitude": nuisance.amplitude,
-            })
+            rows.append(
+                {
+                    "case": name,
+                    "split": "heldout" if heldout else "train",
+                    "kind": kind,
+                    "truth_1_ghz": c1,
+                    "truth_2_ghz": c2,
+                    "baseline_error_mhz": baseline_error,
+                    "nuisance_error_mhz": nuisance_error,
+                    "selected_error_mhz": selected_error,
+                    "select_nuisance": selected,
+                    "baseline_accurate": bool(
+                        np.isfinite(baseline_error) and baseline_error <= args.tolerance_mhz
+                    ),
+                    "nuisance_accurate": bool(
+                        np.isfinite(nuisance_error) and nuisance_error <= args.tolerance_mhz
+                    ),
+                    "selected_accurate": bool(
+                        np.isfinite(selected_error) and selected_error <= args.tolerance_mhz
+                    ),
+                    "baseline_aicc": baseline.aicc,
+                    "nuisance_aicc": nuisance.aicc,
+                    "baseline_rmse": baseline.rmse,
+                    "nuisance_rmse": nuisance.rmse,
+                    "nuisance_period_ghz": nuisance.period_ghz,
+                    "nuisance_amplitude": nuisance.amplitude,
+                }
+            )
     location = new_run_location(args.output_dir, "sinusoidal-nuisance-research")
     output = location.output_dir / "nuisance_comparison.csv"
     with output.open("x", newline="", encoding="utf-8") as handle:
@@ -134,15 +164,23 @@ def main() -> None:
     mlflow.set_tracking_uri(location.tracking_uri)
     mlflow.set_experiment(EXPERIMENT)
     with mlflow.start_run(run_name=location.run_name) as active:
-        mlflow.set_tags({
-            "project": "MagnetIQ", "pipeline": "synthetic-sinusoidal-nuisance",
-            "git_revision": git_revision(), "quality_labels": "research-only",
-        })
-        mlflow.log_params({
-            "train_seed": args.train_seed, "test_seed": args.test_seed,
-            "repeats": args.repeats, "center_tolerance_mhz": args.tolerance_mhz,
-            "period_grid_ghz": "0.004,0.005,0.006,0.007,0.008,0.009",
-        })
+        mlflow.set_tags(
+            {
+                "project": "MagnetIQ",
+                "pipeline": "synthetic-sinusoidal-nuisance",
+                "git_revision": git_revision(),
+                "quality_labels": "research-only",
+            }
+        )
+        mlflow.log_params(
+            {
+                "train_seed": args.train_seed,
+                "test_seed": args.test_seed,
+                "repeats": args.repeats,
+                "center_tolerance_mhz": args.tolerance_mhz,
+                "period_grid_ghz": "0.004,0.005,0.006,0.007,0.008,0.009",
+            }
+        )
         mlflow.log_metric("cases", float(len(rows)))
         mlflow.log_artifacts(str(location.output_dir), artifact_path="nuisance")
         print(f"MLflow run: {active.info.run_id}")

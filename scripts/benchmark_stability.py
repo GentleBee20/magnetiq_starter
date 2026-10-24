@@ -33,7 +33,8 @@ def main() -> None:
     if min(args.repeats, args.bootstrap, args.starts) < 1 or args.tolerance_mhz <= 0:
         parser.error("Positive repeats, bootstrap, starts and tolerance required")
     selected = [
-        case for case in make_cases(args.seed, args.repeats)
+        case
+        for case in make_cases(args.seed, args.repeats)
         if case[0].endswith(("clean_0", "oscillation_1", "oscillation_2"))
     ]
     location = new_run_location(args.output_dir, "center-stability-research")
@@ -43,8 +44,11 @@ def main() -> None:
         spectrum = OdmrSpectrum(name, tuple(frequency), tuple(contrast))
         best = choose_fit([fit_spectrum(spectrum, n) for n in (0, 1, 2)])
         stability = center_stability(
-            spectrum, best, seed=args.seed + index,
-            bootstrap_trials=args.bootstrap, multistart_trials=args.starts,
+            spectrum,
+            best,
+            seed=args.seed + index,
+            bootstrap_trials=args.bootstrap,
+            multistart_trials=args.starts,
             near_optimal_rss_ratio=args.near_optimal_rss_ratio,
         )
         if best.model == "double" and best.success:
@@ -54,32 +58,36 @@ def main() -> None:
         else:
             error = float("nan")
         for restart, detail in enumerate(stability.restart_details):
-            detail_rows.append({
+            detail_rows.append(
+                {
+                    "case": name,
+                    "restart": restart,
+                    "center_1_ghz": detail[0],
+                    "center_2_ghz": detail[1],
+                    "rss": detail[2],
+                    "rss_ratio": detail[3],
+                    "at_boundary": detail[4],
+                    "near_optimal": detail[3] <= args.near_optimal_rss_ratio,
+                }
+            )
+        rows.append(
+            {
                 "case": name,
-                "restart": restart,
-                "center_1_ghz": detail[0],
-                "center_2_ghz": detail[1],
-                "rss": detail[2],
-                "rss_ratio": detail[3],
-                "at_boundary": detail[4],
-                "near_optimal": detail[3] <= args.near_optimal_rss_ratio,
-            })
-        rows.append({
-            "case": name,
-            "model": best.model,
-            "center_error_mhz": error,
-            "centers_accurate": bool(np.isfinite(error) and error <= args.tolerance_mhz),
-            "bootstrap_width95_max_mhz": stability.bootstrap_width95_max_mhz,
-            "bootstrap_successes": stability.bootstrap_successes,
-            "bootstrap_trials": stability.bootstrap_trials,
-            "multistart_range_max_mhz": stability.multistart_range_max_mhz,
-            "multistart_successes": stability.multistart_successes,
-            "multistart_trials": stability.multistart_trials,
-            "near_optimal_range_max_mhz": stability.near_optimal_range_max_mhz,
-            "near_optimal_count": stability.near_optimal_count,
-            "bootstrap_interval_1_ghz": stability.bootstrap_interval_1_ghz,
-            "bootstrap_interval_2_ghz": stability.bootstrap_interval_2_ghz,
-        })
+                "model": best.model,
+                "center_error_mhz": error,
+                "centers_accurate": bool(np.isfinite(error) and error <= args.tolerance_mhz),
+                "bootstrap_width95_max_mhz": stability.bootstrap_width95_max_mhz,
+                "bootstrap_successes": stability.bootstrap_successes,
+                "bootstrap_trials": stability.bootstrap_trials,
+                "multistart_range_max_mhz": stability.multistart_range_max_mhz,
+                "multistart_successes": stability.multistart_successes,
+                "multistart_trials": stability.multistart_trials,
+                "near_optimal_range_max_mhz": stability.near_optimal_range_max_mhz,
+                "near_optimal_count": stability.near_optimal_count,
+                "bootstrap_interval_1_ghz": stability.bootstrap_interval_1_ghz,
+                "bootstrap_interval_2_ghz": stability.bootstrap_interval_2_ghz,
+            }
+        )
     output = location.output_dir / "center_stability.csv"
     with output.open("x", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
@@ -94,20 +102,24 @@ def main() -> None:
     mlflow.set_tracking_uri(location.tracking_uri)
     mlflow.set_experiment(EXPERIMENT)
     with mlflow.start_run(run_name=location.run_name) as active:
-        mlflow.set_tags({
-            "project": "MagnetIQ",
-            "pipeline": "synthetic-center-stability",
-            "git_revision": git_revision(),
-            "quality_labels": "research-only",
-        })
-        mlflow.log_params({
-            "seed": args.seed,
-            "repeats": args.repeats,
-            "bootstrap_trials": args.bootstrap,
-            "multistart_trials": args.starts,
-            "near_optimal_rss_ratio": args.near_optimal_rss_ratio,
-            "illustrative_center_tolerance_mhz": args.tolerance_mhz,
-        })
+        mlflow.set_tags(
+            {
+                "project": "MagnetIQ",
+                "pipeline": "synthetic-center-stability",
+                "git_revision": git_revision(),
+                "quality_labels": "research-only",
+            }
+        )
+        mlflow.log_params(
+            {
+                "seed": args.seed,
+                "repeats": args.repeats,
+                "bootstrap_trials": args.bootstrap,
+                "multistart_trials": args.starts,
+                "near_optimal_rss_ratio": args.near_optimal_rss_ratio,
+                "illustrative_center_tolerance_mhz": args.tolerance_mhz,
+            }
+        )
         mlflow.log_metric("cases", float(len(rows)))
         mlflow.log_metric(
             "inaccurate_cases",
