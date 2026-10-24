@@ -62,3 +62,29 @@ Exports `reports/odmr/model_fits.csv` with baseline, single- and double-Lorentzi
 fit metrics. AICc model preference and optimizer success **do not establish**
 measurement reliability. This is an initial constrained benchmark; more robust
 initialization, uncertainty estimates and residual diagnostics are planned.
+
+## Experimental fit diagnostics and figures
+
+Run on six spectra (default):
+
+```powershell
+python scripts\diagnose_odmr.py "data\raw\Dataset_10.5281zenodo.14697917.zip" --limit 6
+```
+
+Run on all spectra:
+
+```powershell
+python scripts\diagnose_odmr.py "data\raw\Dataset_10.5281zenodo.14697917.zip" --limit 0
+```
+
+Outputs are written to `reports/odmr/diagnostics/`:
+
+- `fit_diagnostics.csv`: selected-model parameters, relative RMSE, residual correlation, warnings and status.
+- `plots/*.png`: experimental spectrum, fitted curve, resonance locations and residuals.
+- `summary.png`: batch overview of relative fit errors and status counts.
+
+The provisional statuses `FIT_OK`, `REVIEW_REQUIRED`, and `FIT_FAILED`
+describe **fit diagnostics only**. The heuristic thresholds have not been calibrated
+with reference measurements; these are **not** absolute sensor accuracy statements,
+device-fault diagnoses, or physical anomaly labels. The selected model is the
+minimum-AICc successful candidate among baseline, single and double Lorentzian fits.
