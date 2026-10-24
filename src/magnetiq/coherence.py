@@ -83,12 +83,8 @@ def analyze(source: str, values: np.ndarray) -> CoherenceResult:
     mean_residual = float(np.mean(residual))
     signed_bias_over_rmse = mean_residual / rmse if rmse > 0 else 0.0
     midpoint = len(residual) // 2
-    early_late_difference = float(
-        np.mean(residual[midpoint:]) - np.mean(residual[:midpoint])
-    )
-    early_late_bias_difference_over_rmse = (
-        early_late_difference / rmse if rmse > 0 else 0.0
-    )
+    early_late_difference = float(np.mean(residual[midpoint:]) - np.mean(residual[:midpoint]))
+    early_late_bias_difference_over_rmse = early_late_difference / rmse if rmse > 0 else 0.0
     steps = np.diff(values[:, 0])
     sampling_step_max_min_ratio = float(np.max(steps) / np.min(steps))
     global_rms = max(rmse, 1e-15)
