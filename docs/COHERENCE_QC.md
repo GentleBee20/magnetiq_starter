@@ -93,3 +93,29 @@ If residual RMSE is zero, bias ratios are defined as zero by convention.
 
 These metrics are research leads. No new thresholds, accepted/rejected
 labels, or sensor-failure diagnoses are introduced.
+
+
+## Results from the 24-file residual-bias CSV
+
+The submitted real-data run confirms 12 Ramsey and 12 spin-echo
+measurements. All 24 have a maximum/minimum sampling-step ratio of 1.0.
+
+For descriptive investigation only (not a new acceptance threshold),
+8/12 Ramsey files have `abs(signed_bias_over_rmse) > 0.5`,
+versus 0/12 spin-echo files. All six Hole-region Ramsey files
+have negative signed bias of magnitude about 0.55–0.85 RMSE; two
+No-Hole Ramsey files also show negative bias. Multiple such files
+have no existing quality warning, confirming that existing exploratory
+flags do not fully describe persistent residual offset.
+
+Using `abs(early_late_bias_difference_over_rmse) > 0.7`
+as another *descriptive selection criterion*, 8/12 Ramsey files
+and 4/12 spin-echo files qualify. These differences can arise from
+fitting conventions, oscillatory residuals or model mismatch;
+they are **not proof of instrument drift**.
+
+The spin-echo fitted residuals have mean values extremely close to
+zero relative to RMSE, while Ramsey measurements are heterogeneous
+in their mean offsets. The provided fit-generation methods and
+baseline conventions must be investigated before assigning a cause
+or introducing operational warning thresholds.
