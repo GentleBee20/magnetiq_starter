@@ -573,3 +573,38 @@ changes. Next inspect per-case periods, center errors and selection
 flags; evaluate non-sinusoidal structured residuals, period-grid shifts,
 clean false-selection control and uncertainty calibration for the
 nuisance model before any promotion.
+
+## Nuisance-model per-case audit — 72-case held-out study
+
+Audited the uploaded `nuisance_comparison.csv` for local MLflow run
+`f439813c35eb4b71aa41adb4f0191151`. Across **48 oscillatory cases**,
+the sinusoidal nuisance fitter reduced the maximum absolute two-center
+error in **every case**. The original two-Lorentzian model was inaccurate
+(>0.5 MHz) in 15/48 cases; the nuisance model was within the illustrative
+0.5 MHz tolerance in 48/48. Neither classification is instrument validation.
+
+Across all 24 clean examples, AICc selected the nuisance model 13
+times (7/12 development; 6/12 held-out). On clean data the fitted
+nuisance amplitude ranged from approximately 0.000061 to 0.000155
+normalized contrast units; fitted oscillatory-case amplitudes started
+around 0.00531. The clean/oscillatory amplitude gap is a property of
+this synthetic generator, not a justified production threshold.
+
+Held-out oscillatory cases by selected period:
+- 5 MHz (8 cases): mean center error 0.0630 MHz;
+- 7 MHz (8 cases): mean center error 0.0487 MHz;
+- 9 MHz (8 cases): mean center error 0.1018 MHz.
+
+Worst held-out nuisance errors: `heldout_008_oscillation_high`
+0.1947 MHz (baseline 1.1828); `heldout_002_oscillation_high`
+0.1809 MHz (baseline 0.2203); and
+`heldout_011_oscillation_high` 0.1328 MHz (baseline 0.2910).
+All selected a 9 MHz candidate, while the relevant held-out
+generator period is 8.6 MHz, suggesting that coarse period search
+may leave residual center bias.
+
+**Next research controls:** refine period continuously after grid
+initialization; compare against the unchanged six-grid-period method;
+test clean false-selection rates with a selection method that accounts
+for period searching; and evaluate unrelated distortions before
+considering any production integration.
