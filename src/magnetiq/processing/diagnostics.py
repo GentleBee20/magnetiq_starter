@@ -34,6 +34,12 @@ class FitDiagnostics:
     amplitude_2: float | None
     max_local_rmse_ratio: float | None = None
     max_local_bias_ratio: float | None = None
+    resonance_1_local_rmse_ratio: float | None = None
+    resonance_2_local_rmse_ratio: float | None = None
+    resonance_1_local_bias_ratio: float | None = None
+    resonance_2_local_bias_ratio: float | None = None
+    off_resonance_rmse: float | None = None
+    diagnostic_checks: str = ""
 
 
 def choose_fit(fits: list[ResonanceFit]) -> ResonanceFit:
@@ -141,6 +147,13 @@ def diagnose_fit(spectrum: OdmrSpectrum, fits: list[ResonanceFit]) -> FitDiagnos
     def field(index: int, item: int, scale: float = 1.0) -> float | None:
         return float(peak_params[index][item] * scale) if len(peak_params) > index else None
 
+    checks = (
+        f"relative_rmse={normalized:.4g} (limit 0.15); "
+        f"abs_lag1={abs(lag1):.4g} (limit 0.7); "
+        f"delta_aicc={delta:.4g} (review below 2); "
+        f"local_rmse_max={max_local_rmse} (limit 2); "
+        f"local_bias_max={max_local_bias} (limit 1)"
+    )
     return FitDiagnostics(
         spectrum.source,
         fit.model,
@@ -160,4 +173,10 @@ def diagnose_fit(spectrum: OdmrSpectrum, fits: list[ResonanceFit]) -> FitDiagnos
         field(1, 0),
         max_local_rmse,
         max_local_bias,
+        local_rmse_ratios[0] if local_rmse_ratios else None,
+        local_rmse_ratios[1] if len(local_rmse_ratios) > 1 else None,
+        local_bias_ratios[0] if local_bias_ratios else None,
+        local_bias_ratios[1] if len(local_bias_ratios) > 1 else None,
+        float(np.sqrt(np.mean(quiet**2))) if len(quiet) >= 12 else None,
+        checks,
     )
