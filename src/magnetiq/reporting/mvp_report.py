@@ -29,7 +29,7 @@ def write_measurement_report(results: list[FitDiagnostics], output_dir: Path) ->
     counts = dict(Counter(result.status for result in results))
     data = {
         "schema_version": "0.1.0",
-        "scope": "Provisional ODMR fit diagnostics, not calibrated hardware quality",
+        "scope": "Provisional ODMR fit diagnostics; not sensor calibration or field-map validation",
         "status_counts": counts,
         "measurements": [asdict(result) for result in results],
     }
