@@ -466,3 +466,35 @@ distortion. Per-center marginal coverage and joint coverage continue
 to be scored separately. Experiments are immutable MLflow runs; no
 production QC thresholds changed. The implementation requires new
 test and empirical execution before claims about calibration.
+
+## Known-Gaussian-noise bootstrap control — 24 October 2026
+
+Both local calibration runs succeeded. The larger study used seeds
+20261224–20261226, four latent-parameter draws per seed (12 clean
+spectra plus 24 oscillatory conditions), 100 resamples per case.
+MLflow run: `d395e37b2161491cb31b44158481fcd3`.
+
+| Arm | Clean joint coverage | Oscillatory joint coverage |
+| --- | ---: | ---: |
+| Raw residual | 8/12 (66.7%) | 0/24 |
+| Mean-centered residual | 8/12 (66.7%) | 0/24 |
+| Known-noise parametric Gaussian | 10/12 (83.3%) | 0/24 |
+
+Marginal clean Gaussian coverage: center 1 10/12, center 2 12/12.
+Oscillatory Gaussian marginal coverage: center 1 0/24, center 2 0/24.
+The smaller pilot (two seeds, two draws each, 50 resamples) likewise
+showed clean Gaussian joint coverage 2/4 vs residual 1/4, and 0/8
+oscillatory coverage for all three arms; the pilot overlaps with the
+larger run and is not an independent confirmation.
+
+**Interpretation:** specifying the correct synthetic baseline-noise
+scale helps clean-data interval coverage, while pure Gaussian
+perturbations do not account for coherent oscillatory mismatch.
+Neither marginal percentile intervals nor their intersection are a
+calibrated joint confidence region; there are few independent latent
+draws. No production QC changes.
+
+**Next:** audit exact center estimates, signed errors and interval
+endpoints in the richer calibration CSV; assess bias/uncertainty ratios,
+then independently validate coverage under modified distortion frequency,
+phase and amplitude with additional seeds.
