@@ -37,10 +37,15 @@ def write_measurement_report(results: list[FitDiagnostics], output_dir: Path) ->
         json.dumps(_json_safe(data), indent=2, allow_nan=False), encoding="utf-8"
     )
     rows = "".join(
-        "<tr><td>" + escape(result.source) + "</td><td>"
-        + escape(result.status) + "</td><td>"
-        + escape(result.model) + "</td><td>"
-        + escape(", ".join(result.warnings)) + "</td></tr>"
+        "<tr><td>"
+        + escape(result.source)
+        + "</td><td>"
+        + escape(result.status)
+        + "</td><td>"
+        + escape(result.model)
+        + "</td><td>"
+        + escape(", ".join(result.warnings))
+        + "</td></tr>"
         for result in results
     )
     html = (
