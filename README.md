@@ -1,20 +1,42 @@
 # MagnetIQ — quantum measurement quality MVP
 
-Initial scope: inventory real NV-center experimental data, identify usable ODMR spectra, then implement transparent fitting, uncertainty estimates, artifact checks, and explainable measurement verdicts.
+A reproducible, engineering-focused pipeline for real NV-center experimental data.
+The goal is explainable measurement quality assessment; reconstructed 3D current maps
+are **not** validated by the first spectroscopy dataset.
 
-Data: Zenodo https://doi.org/10.5281/zenodo.14697917 (download separately; not included in repo).
+## Dataset
 
-## Quick start (Windows PowerShell)
+[NV-center experiment, Zenodo DOI 10.5281/zenodo.14697917](https://doi.org/10.5281/zenodo.14697917).
+Download separately into `data/raw/`. Third-party data is excluded from Git.
+
+## Development setup (PowerShell)
 
 ```powershell
 py -3.11 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
-pip install -r requirements.txt
-python scripts\inspect_archive.py data\raw\Dataset_10.5281zenodo.14697917.zip
+python -m pip install -e ".[dev]"
+ruff check .
+ruff format --check .
+mypy
 python -m pytest -q
 ```
 
-The inspector does *not* extract or load large arrays; it inventories the ZIP safely and writes reports/archive_inventory.json and reports/archive_inventory.csv. Return the terminal summary and inventory to guide data parsing.
+## Inspect experimental dataset
 
-Do not commit third-party datasets to GitHub. The datasets have their own usage conditions; retain publication citation and provenance.
+```powershell
+python scripts\inspect_archive.py "data\raw\Dataset_10.5281zenodo.14697917.zip"
+```
+
+Manifests are generated in `reports/` (excluded from version control).
+The inspection is read-only and does not extract or load measurement arrays.
+
+## Engineering conventions
+
+- Reusable functions live under `src/magnetiq/`; `scripts/` are thin CLI entry points.
+- Library code does not configure logging. CLI entry points call `configure_logging`.
+- Use standard `logging` with lazy %-style formatting instead of print.
+- Keep scientific units, calibration assumptions and provenance explicit.
+- Add pytest cases for both success and failure behavior.
+- Require Ruff, mypy and pytest checks before merge.
+- Develop isolated features on branches and merge into `main` by pull request.
