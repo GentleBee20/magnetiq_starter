@@ -10,6 +10,7 @@ import io
 import math
 import zipfile
 from dataclasses import asdict, dataclass
+from typing import Iterator
 from pathlib import Path
 
 import numpy as np
@@ -105,7 +106,7 @@ def analyze(source: str, values: np.ndarray) -> CoherenceResult:
     )
 
 
-def iter_coherence(archive: Path):
+def iter_coherence(archive: Path) -> Iterator[tuple[str, np.ndarray]]:
     """Yield validated coherence measurements directly from original archive."""
     with zipfile.ZipFile(archive) as zf:
         for name in sorted(zf.namelist()):
