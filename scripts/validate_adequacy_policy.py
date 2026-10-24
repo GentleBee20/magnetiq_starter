@@ -61,12 +61,13 @@ def score(rows: list[dict[str, object]], statuses: list[str]) -> dict[str, float
     }
 
 
-def select_policy(
-    rows: list[dict[str, object]], max_false_failure: float
-) -> tuple[float, float]:
+def select_policy(rows: list[dict[str, object]], max_false_failure: float) -> tuple[float, float]:
     """Select only on training cases; constrain false failures among accurate fits."""
-    candidates = [(r, l) for r in (0.04, 0.07, 0.10, 0.13, 0.16, 0.20)
-                  for l in (0.70, 0.80, 0.90, 0.97, 0.985)]
+    candidates = [
+        (rmse_threshold, lag_threshold)
+        for rmse_threshold in (0.04, 0.07, 0.10, 0.13, 0.16, 0.20)
+        for lag_threshold in (0.70, 0.80, 0.90, 0.97, 0.985)
+    ]
     viable: list[tuple[float, float, float, float]] = []
     for rmse_gate, lag_gate in candidates:
         statuses = [classify(row, rmse_gate, lag_gate) for row in rows]
@@ -76,8 +77,9 @@ def select_policy(
             and metrics["false_failure_rate"] <= max_false_failure
             and math.isfinite(metrics["failure_recall"])
         ):
-            viable.append((metrics["failure_recall"], -metrics["false_failure_rate"],
-                           rmse_gate, lag_gate))
+            viable.append(
+                (metrics["failure_recall"], -metrics["false_failure_rate"], rmse_gate, lag_gate)
+            )
     if not viable:
         raise ValueError("No viable candidate; need both accurate and inaccurate training cases")
     _, _, rmse, lag = max(viable)
@@ -116,21 +118,25 @@ def main() -> None:
     mlflow.set_tracking_uri(location.tracking_uri)
     mlflow.set_experiment(EXPERIMENT)
     with mlflow.start_run(run_name=location.run_name) as active:
-        mlflow.set_tags({
-            "project": "MagnetIQ",
-            "pipeline": "synthetic-heldout-adequacy",
-            "quality_labels": "synthetic-center-truth-only",
-            "git_revision": git_revision(),
-        })
-        mlflow.log_params({
-            "train_seed": args.train_seed,
-            "test_seed": args.test_seed,
-            "repeats": args.repeats,
-            "center_tolerance_mhz": args.tolerance_mhz,
-            "max_train_false_failure": args.max_train_false_failure,
-            "selected_rmse_gate": rmse_gate,
-            "selected_lag_gate": lag_gate,
-        })
+        mlflow.set_tags(
+            {
+                "project": "MagnetIQ",
+                "pipeline": "synthetic-heldout-adequacy",
+                "quality_labels": "synthetic-center-truth-only",
+                "git_revision": git_revision(),
+            }
+        )
+        mlflow.log_params(
+            {
+                "train_seed": args.train_seed,
+                "test_seed": args.test_seed,
+                "repeats": args.repeats,
+                "center_tolerance_mhz": args.tolerance_mhz,
+                "max_train_false_failure": args.max_train_false_failure,
+                "selected_rmse_gate": rmse_gate,
+                "selected_lag_gate": lag_gate,
+            }
+        )
         result: dict[str, dict[str, float]] = {}
         for split, rows in (("train", train), ("holdout", test)):
             tuned = [classify(row, rmse_gate, lag_gate) for row in rows]
@@ -147,8 +153,14 @@ def main() -> None:
                         mlflow.log_metric(f"{split}_{policy}_{key}", value)
                 print(f"{split}/{policy}: {metrics}")
         (location.output_dir / "comparison.json").write_text(
-            json.dumps({"thresholds": {"rmse": rmse_gate, "lag1": lag_gate},
-                        "results": result, "mlflow_run_id": active.info.run_id}, indent=2)
+            json.dumps(
+                {
+                    "thresholds": {"rmse": rmse_gate, "lag1": lag_gate},
+                    "results": result,
+                    "mlflow_run_id": active.info.run_id,
+                },
+                indent=2,
+            )
             + "\n",
             encoding="utf-8",
         )
