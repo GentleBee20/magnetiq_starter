@@ -450,3 +450,19 @@ that are too narrow. Next step: add diagnostic endpoints and
 per-case errors to the benchmark, then compare IID residual bootstrap
 with a Gaussian-noise parametric control using a larger grouped
 synthetic validation design. Do not tune production thresholds yet.
+
+## Calibrating uncertainty: diagnostic exports and parametric control
+
+Implemented a research-only extension of the bootstrap calibration study.
+The CSV now includes synthetic true and estimated resonance centers,
+signed center errors, per-center percentile interval endpoints/widths,
+and fitted linewidths. Added a **known Gaussian-noise scale**
+(`sigma = 0.0006` normalized contrast units) parametric-bootstrap arm
+beside raw and mean-centered residual resampling. The synthetic clean
+generator uses this Gaussian baseline-noise scale, so the parametric
+arm is a useful clean-case control. It remains **model-misspecified**
+for the oscillatory cases, where the signal contains an extra coherent
+distortion. Per-center marginal coverage and joint coverage continue
+to be scored separately. Experiments are immutable MLflow runs; no
+production QC thresholds changed. The implementation requires new
+test and empirical execution before claims about calibration.
