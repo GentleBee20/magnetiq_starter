@@ -1,13 +1,20 @@
 """Research-only double-Lorentzian plus sinusoidal nuisance fitting."""
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
+from typing import Protocol, cast
 
 import numpy as np
-from scipy.optimize import least_squares
+from scipy import optimize
 
 from magnetiq.data.odmr import OdmrSpectrum
 from magnetiq.processing.resonance import ResonanceFit, evaluate_model
+
+
+class _FitResult(Protocol):
+    x: np.ndarray
+    success: bool
 
 
 @dataclass(frozen=True)
@@ -28,9 +35,9 @@ def sinusoidal_model(
 ) -> np.ndarray:
     """Evaluate two dips plus a sinusoidal empirical disturbance."""
     phase = 2 * np.pi * (frequency - float(frequency[0])) / period_ghz
-    return evaluate_model(frequency, parameters[:8], 2) + (
+    return np.asarray(evaluate_model(frequency, parameters[:8], 2) + (
         parameters[8] * np.sin(phase) + parameters[9] * np.cos(phase)
-    )
+    ), dtype=float)
 
 
 def fit_sinusoidal_nuisance(
@@ -73,9 +80,13 @@ def fit_sinusoidal_nuisance(
         lower + 1e-12, upper - 1e-12,
     )
     best: NuisanceFit | None = None
+    least_squares = cast(Callable[..., _FitResult], optimize.least_squares)
     for period in periods_ghz:
+        def residual_function(p: np.ndarray, *, trial_period: float = period) -> np.ndarray:
+            return sinusoidal_model(x, p, trial_period) - y
+
         fitted = least_squares(
-            lambda p: sinusoidal_model(x, p, period) - y,
+            residual_function,
             x0=initial, bounds=(lower, upper), max_nfev=1600,
         )
         if not fitted.success or not np.all(np.isfinite(fitted.x)):
