@@ -2,13 +2,23 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
+from typing import Protocol, cast
 
 import numpy as np
 from scipy import optimize
 from scipy.signal import find_peaks
 
 from magnetiq.data.odmr import OdmrSpectrum
+
+
+class _LeastSquaresResult(Protocol):
+    """Fields consumed from SciPy's optimization result."""
+
+    x: np.ndarray
+    success: bool
+    message: str
 
 
 @dataclass(frozen=True)
@@ -92,7 +102,9 @@ def fit_spectrum(spectrum: OdmrSpectrum, n_peaks: int) -> ResonanceFit:
             upper.extend([max(2 * signal_range, 1e-5), float(x[-1]), span / 2])
 
     try:
-        fitted = optimize.least_squares(
+        # scipy-stubs may resolve this SciPy public function as a module.
+        least_squares = cast(Callable[..., _LeastSquaresResult], optimize.least_squares)
+        fitted = least_squares(
             lambda p: evaluate_model(x, p, n_peaks) - y,
             x0=np.asarray(initial),
             bounds=(np.asarray(lower), np.asarray(upper)),
