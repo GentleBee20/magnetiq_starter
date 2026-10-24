@@ -120,9 +120,7 @@ def write_measurement_report(results: list[FitDiagnostics], output_dir: Path) ->
         "<p class='scope'>Provisional spectral fit verdicts only: "
         "not sensor calibration, field-map confidence or physical fault diagnoses.</p>"
         "</header><section class='cards' aria-label='Analysis summary'>"
-        "<div class='card'><strong>"
-        + str(total)
-        + "</strong><span>Measurements</span></div>"
+        "<div class='card'><strong>" + str(total) + "</strong><span>Measurements</span></div>"
         "<div class='card'><strong>"
         + str(counts.get("FIT_OK", 0))
         + "</strong><span>FIT_OK</span></div>"
