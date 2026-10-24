@@ -18,9 +18,7 @@ def main() -> None:
     """Run the audit and summarize unexpected formats or values."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("archive", type=Path)
-    parser.add_argument(
-        "--output", type=Path, default=Path("reports/odmr_schema_audit.csv")
-    )
+    parser.add_argument("--output", type=Path, default=Path("reports/odmr_schema_audit.csv"))
     args = parser.parse_args()
     configure_logging()
     try:
