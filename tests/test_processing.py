@@ -10,9 +10,7 @@ from magnetiq.reporting.spectra import write_summaries
 
 
 def test_summary_metrics_preserve_values():
-    spectrum = OdmrSpectrum(
-        "example", (2.85, 2.8501, 2.8502), (1.0, 0.8, 1.1)
-    )
+    spectrum = OdmrSpectrum("example", (2.85, 2.8501, 2.8502), (1.0, 0.8, 1.1))
     result = summarize_spectrum(spectrum)
     assert result.samples == 3
     assert result.minimum_frequency_ghz == pytest.approx(2.8501)
