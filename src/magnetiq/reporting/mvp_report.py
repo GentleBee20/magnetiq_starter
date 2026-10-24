@@ -117,7 +117,7 @@ def write_measurement_report(results: list[FitDiagnostics], output_dir: Path) ->
         + report_css
         + "</style></head><body><main><header>"
         "<h1>MagnetIQ · ODMR fit quality</h1>"
-        "<p class='scope'>Provisional spectral fit diagnostics only: "
+        "<p class='scope'>Provisional spectral fit verdicts only: "
         "not sensor calibration, field-map confidence or physical fault diagnoses.</p>"
         "</header><section class='cards' aria-label='Analysis summary'>"
         "<div class='card'><strong>"
