@@ -83,7 +83,7 @@ def fit_sinusoidal_nuisance(
     least_squares = cast(Callable[..., _FitResult], optimize.least_squares)
     for period in periods_ghz:
         def residual_function(p: np.ndarray, *, trial_period: float = period) -> np.ndarray:
-            return sinusoidal_model(x, p, trial_period) - y
+            return cast(np.ndarray, sinusoidal_model(x, p, trial_period) - y)
 
         fitted = least_squares(
             residual_function,
