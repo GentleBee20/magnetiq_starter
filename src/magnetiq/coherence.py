@@ -9,8 +9,8 @@ import csv
 import io
 import math
 import zipfile
+from collections.abc import Iterator
 from dataclasses import asdict, dataclass
-from typing import Iterator
 from pathlib import Path
 
 import numpy as np
