@@ -374,3 +374,18 @@ and sampling assumptions, and assess uncertainty calibration over
 many independent draws and shifted noise/distortion regimes. Do not
 promote bootstrap widths or restart stability to production accuracy
 claims.
+
+## Bootstrap calibration study — implementation checkpoint
+
+Added a reproducible multiple-seed comparison of **marginal coverage for
+each resonance** and **joint coverage for both**, using 100 bootstrap refits
+per spectrum by default. It compares the original residual bootstrap to
+mean-centered residual resampling on the same synthetic cases, preserves
+all outputs in a new MLflow run, and keeps the existing production QC
+rules unchanged.
+
+This is an **experiment proposal implemented in code**, not a claim of
+successful calibration. The independent seeds still share the same
+synthetic generator and line-shape assumptions. Evaluate empirical
+coverage, failure-to-assess frequency, and differences between clean and
+oscillatory cases before proposing another uncertainty method.
