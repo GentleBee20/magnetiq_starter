@@ -666,3 +666,45 @@ family, and consider a separate abstention/model-mismatch warning
 rather than automatically trusting an AICc-preferred nuisance model.
 Do not tune against the same held-out split and then reuse it as
 untouched evidence.
+
+## Phase 2 per-case reliability audit — 24 October 2026
+
+Inspected uploaded 144-case `robustness_cases.csv` plus study summary.
+
+Exactly **nine shifted cases** exceeded the illustrative 0.5 MHz
+two-center error tolerance after penalty-based selection: three
+two-tone and six chirp cases. All selected the refined nuisance fit.
+
+| Case | Baseline max error MHz | Selected max error MHz | Refined RMSE improvement |
+| --- | ---: | ---: | ---: |
+| shift_000_two_tone | 0.973 | 0.774 | 27.0% |
+| shift_002_two_tone | 8.605 | 8.938 | 19.4% |
+| shift_005_two_tone | 0.790 | 0.673 | 30.4% |
+| shift_001_chirp | 0.481 | 0.680 | 6.9% |
+| shift_003_chirp | 0.375 | 0.822 | 10.4% |
+| shift_005_chirp | 0.552 | 0.573 | 11.0% |
+| shift_006_chirp | 0.590 | 0.735 | 10.3% |
+| shift_007_chirp | 9.685 | 9.567 | 11.0% |
+| shift_008_chirp | 0.391 | 0.602 | 7.7% |
+
+**Three newly inaccurate chirp decisions** (`shift_001_chirp`,
+`shift_003_chirp`, `shift_008_chirp`) had baseline errors below
+0.5 MHz but selected-model errors above 0.5 MHz. All nine cases
+reduced residual RMSE while some center estimates worsened.
+
+Mean shifted RMSE reductions: single sine 86.7%, harmonics 57.9%,
+two-tone 29.8%, chirp 8.8%, clean 0.8%, curved baseline 1.7%.
+Substantial RMSE improvements are therefore not proof of center
+accuracy, particularly for two-tone distortions.
+
+**Diagnostic gap:** the existing benchmark CSV exports absolute
+center-error magnitudes, fitted periods and RMSE but does not export
+individual baseline/refined centers, signed errors, or spectral residual
+features. Therefore it does not establish actual center displacement,
+peak identity or a valid new alert threshold.
+
+**Next:** add center coordinates, signed errors, residual correlation
+and frequency-dependent residual metrics to new immutable run
+artifacts. Develop any model-mismatch warning on a distinct development
+cohort and validate on genuinely untouched seeds/regimes. Production
+FIT_OK/REVIEW_REQUIRED/FIT_FAILED rules remain unchanged.
