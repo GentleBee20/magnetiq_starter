@@ -9,8 +9,8 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from matplotlib.transforms import Bbox
 import numpy as np
+from matplotlib.transforms import Bbox
 
 from magnetiq.data.odmr import OdmrSpectrum
 from magnetiq.processing.diagnostics import MODEL_PEAKS, FitDiagnostics
