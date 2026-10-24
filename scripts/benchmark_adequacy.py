@@ -24,7 +24,7 @@ def main() -> None:
     parameters = np.array([1.0, 0.0, 0.04, 2.866, 0.0012, 0.03, 2.875, 0.0015])
     clean = evaluate_model(frequency, parameters, 2)
     noise = rng.normal(0.0, 0.0006, len(frequency))
-    localized = 0.008 * np.exp(-((frequency - 2.866) / 0.00045) ** 2)
+    localized = 0.008 * np.exp(-(((frequency - 2.866) / 0.00045) ** 2))
     oscillation = 0.018 * np.sin((frequency - frequency[0]) * 2 * np.pi / 0.006)
     drift = 0.03 * ((frequency - frequency.mean()) / np.ptp(frequency)) ** 2
     cases = [
