@@ -45,7 +45,9 @@ def main() -> None:
             members = members[: args.limit]
         spectra = [read_odmr(archive, member) for member in members]
     location = new_run_location(args.output_dir, args.run_name, args.tracking_uri)
-    with tracked_run(location, args.archive, limit=args.limit, spectrum_count=len(spectra)) as run_id:
+    with tracked_run(
+        location, args.archive, limit=args.limit, spectrum_count=len(spectra)
+    ) as run_id:
         analyze_and_log(spectra, location.output_dir, run_id, location.tracking_uri, args.archive)
     logger.info("MLflow run %s | directory %s", run_id, location.output_dir)
 

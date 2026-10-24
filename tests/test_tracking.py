@@ -27,10 +27,13 @@ def test_fingerprint_is_content_based(tmp_path: Path) -> None:
 def test_metrics_summarization() -> None:
     metrics = summarize_rows(
         [
-            {"status": "FIT_OK", "rmse": 0.01, "normalized_rmse": 0.1,
-             "max_local_rmse_ratio": 1.3},
-            {"status": "REVIEW_REQUIRED", "rmse": 0.03, "normalized_rmse": 0.3,
-             "max_local_rmse_ratio": None},
+            {"status": "FIT_OK", "rmse": 0.01, "normalized_rmse": 0.1, "max_local_rmse_ratio": 1.3},
+            {
+                "status": "REVIEW_REQUIRED",
+                "rmse": 0.03,
+                "normalized_rmse": 0.3,
+                "max_local_rmse_ratio": None,
+            },
         ]
     )
     assert metrics["spectra"] == 2

@@ -43,7 +43,7 @@ def test_localized_model_mismatch_is_flagged() -> None:
     clean = evaluate_model(frequency, parameters, 2)
     rng = np.random.default_rng(42)
     noise = rng.normal(0, 0.0005, len(frequency))
-    local_pattern = 0.004 * np.exp(-((frequency - 2.866) / 0.0005) ** 2)
+    local_pattern = 0.004 * np.exp(-(((frequency - 2.866) / 0.0005) ** 2))
     spectrum = OdmrSpectrum(
         "synthetic_mismatch", tuple(frequency), tuple(clean + noise + local_pattern)
     )

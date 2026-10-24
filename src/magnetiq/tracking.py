@@ -125,9 +125,7 @@ def tracked_run(
                 mlflow.log_artifacts(str(location.output_dir), artifact_path="reports")
 
 
-def write_manifest(
-    output: Path, *, run_id: str, tracking_uri: str, archive_sha256: str
-) -> None:
+def write_manifest(output: Path, *, run_id: str, tracking_uri: str, archive_sha256: str) -> None:
     """Persist a small machine-readable run manifest alongside CSV and plots."""
     output.write_text(
         json.dumps(

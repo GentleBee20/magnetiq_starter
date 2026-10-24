@@ -58,7 +58,11 @@ def main() -> None:
     for row in changes:
         key = f"{row['before_status']} -> {row['after_status']}"
         transitions[key] = transitions.get(key, 0) + 1
-    print(json.dumps({"compared": len(changes), "transitions": transitions, "csv": str(output)}, indent=2))
+    print(
+        json.dumps(
+            {"compared": len(changes), "transitions": transitions, "csv": str(output)}, indent=2
+        )
+    )
 
 
 if __name__ == "__main__":
