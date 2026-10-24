@@ -540,3 +540,36 @@ true maximum resonance-center error, RMSE, model selection and
 resonance accuracy to immutable local MLflow artifacts. See
 [the experimental protocol](NUISANCE_MODEL_STUDY.md). No benchmark
 results have yet been validated, and production QC is unchanged.
+
+## Sinusoidal nuisance benchmark results — 24 October 2026
+
+Two benchmark runs completed, including the 72-case experiment
+(12 development and 12 held-out latent draws, each under clean,
+low-amplitude and high-amplitude sinusoidal conditions).
+MLflow run `f439813c35eb4b71aa41adb4f0191151`.
+
+Mean **maximum absolute two-center error (MHz)**:
+
+| Dataset | Signal | Baseline | Nuisance | AICc-selected |
+| --- | --- | ---: | ---: | ---: |
+| Development | Clean | 0.00550 | 0.00706 | 0.00676 |
+| Development | Low oscillation | 0.25488 | 0.00692 | 0.00692 |
+| Development | High oscillation | 0.58305 | 0.00515 | 0.00515 |
+| Held-out | Clean | 0.00882 | 0.00810 | 0.00838 |
+| Held-out | Low oscillation | 0.27253 | 0.04624 | 0.04624 |
+| Held-out | High oscillation | 0.57706 | 0.09603 | 0.09603 |
+
+Thus held-out average center error fell by approximately **83.0%**
+(low) and **83.4%** (high). On development sinusoidal cases the
+improvements were approximately 97.3% and 99.1%. The shifted held-out
+generator uses periods/phases different from development, but still
+simulates the same sinusoid family used by the nuisance fitter.
+
+**Unnecessary complexity:** AICc selected nuisance on 7/12 clean
+development spectra and 6/12 clean held-out spectra. AICc computation
+does not correct for searching six fixed candidate periods and is not
+sufficient evidence to deploy model selection. No production QC
+changes. Next inspect per-case periods, center errors and selection
+flags; evaluate non-sinusoidal structured residuals, period-grid shifts,
+clean false-selection control and uncertainty calibration for the
+nuisance model before any promotion.
