@@ -26,6 +26,7 @@ def main() -> None:
         rows = list(csv.DictReader(handle))
     if not rows:
         parser.error("Legacy CSV has no diagnostic rows")
+    Path("reports/odmr/experiments").mkdir(parents=True, exist_ok=True)
     mlflow.set_tracking_uri(args.tracking_uri)
     mlflow.set_experiment(EXPERIMENT)
     with mlflow.start_run(run_name=args.run_name) as active:
