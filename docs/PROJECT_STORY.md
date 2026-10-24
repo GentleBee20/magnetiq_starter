@@ -262,3 +262,14 @@ conclusions; investigate extreme center misassignment, expand
 stress tests beyond fixed sinusoidal perturbations, and evaluate
 group-aware holdouts plus calibration of uncertainty estimates.
 Production decisions are unchanged.
+
+## Parameter-stability prototype — implementation checkpoint
+
+Created [the parameter-stability protocol](PARAMETER_STABILITY.md):
+a fixed-model residual bootstrap and jittered multi-start optimizer
+analysis, with per-case comparison against known synthetic resonance
+center truth and MLflow artifact tracking. This research layer aims to
+test whether fitted-center stability helps separate accurate-but-poorly
+modelled spectra from inaccurate center estimates. It deliberately does
+not change production status rules. **No experimental benchmark
+results or validated coverage claims have been recorded yet.**
