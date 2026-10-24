@@ -716,3 +716,7 @@ The first MVP integration adds `measurement_report.json` and `measurement_report
 ## MVP full real-data pilot — 24 October 2026
 
 Local execution of `python -m scripts.diagnose_odmr <Zenodo archive> --limit 0 --run-name magnetiq-mvp-pilot` completed 105 ODMR spectra without a fatal error. Provisional model-fit classifications: 36 `FIT_OK`, 69 `REVIEW_REQUIRED`, 0 `FIT_FAILED`; these are not validated true-positive/false-positive hardware quality labels. MLflow run `f1fdb16c8c324ac7952fdbe8bb6c2585` and immutable local directory `reports/odmr/experiments/runs/20261024T201054Z_e8eeacc00f`. The terminal log proves processing and experiment registration, not independent inspection of the new HTML/JSON report contents. Current branch CI still has Ruff import-order failure; release remains blocked pending CI and report inspection.
+
+## MVP artifact catalogue and explanatory reports — 24 October 2026
+
+After successful CI on commit `3f0c65b4`, added a curated mapping of existing provisional diagnostic reason codes to category, investigation stage, interpretation and suggested next check. HTML reports show investigation guidance; JSON adds structured `artifact_explanations` per spectrum. Unknown codes are explicitly unclassified; warnings are not confirmed physical root causes. Production fit models, QC thresholds and statuses remain unchanged. Fresh CI and real-data report verification are still required for the new commits.
