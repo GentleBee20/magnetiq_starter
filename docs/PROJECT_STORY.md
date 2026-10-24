@@ -498,3 +498,31 @@ draws. No production QC changes.
 endpoints in the richer calibration CSV; assess bias/uncertainty ratios,
 then independently validate coverage under modified distortion frequency,
 phase and amplitude with additional seeds.
+
+## Per-case parametric-bootstrap bias audit — 24 October 2026
+
+Analyzed the richer 108-row CSV (36 unique cases × three methods) from
+MLflow run `d395e37b2161491cb31b44158481fcd3`.
+
+**Known-noise Gaussian bootstrap control:**
+
+| Type | Mean absolute center-1 error | Mean absolute center-2 error | Mean full center-1 interval width | Mean full center-2 width |
+| --- | ---: | ---: | ---: | ---: |
+| Clean (12) | 0.007 MHz | 0.002 MHz | 0.020 MHz | 0.026 MHz |
+| Oscillatory (24) | 0.582 MHz | 0.552 MHz | 0.025 MHz | 0.020 MHz |
+
+The Gaussian noise-only bootstrap intervals on oscillatory spectra are
+much narrower than actual center-estimation errors. The two clean
+Gaussian misses for center 1 are seed/case 20261224/003_clean_0
+(error -0.0127 MHz, full interval width 0.0186 MHz) and
+20261225/001_clean_0 (+0.0175 MHz, width 0.0266 MHz).
+For oscillatory cases the residual-bootstrap intervals broadened
+substantially relative to the Gaussian control, but neither method
+achieved joint coverage in the 24 cases.
+
+**Interpretation:** a correct random-noise model around a misspecified
+spectral line shape does not capture coherent model bias. Even the clean
+case warrants larger independent coverage experiments. Future methods
+should explicitly model or detect coherent oscillatory residuals;
+calibration must be tested on independent synthetic draws and distinct
+distortion regimes. No changes to production quality labels.
