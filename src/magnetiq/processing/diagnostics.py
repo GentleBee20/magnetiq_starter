@@ -32,6 +32,8 @@ class FitDiagnostics:
     width_2_mhz: float | None
     amplitude_1: float | None
     amplitude_2: float | None
+    max_local_rmse_ratio: float | None = None
+    max_local_bias_ratio: float | None = None
 
 
 def choose_fit(fits: list[ResonanceFit]) -> ResonanceFit:
@@ -92,6 +94,27 @@ def diagnose_fit(spectrum: OdmrSpectrum, fits: list[ResonanceFit]) -> FitDiagnos
             warnings.append("center_near_edge")
         if amplitude <= 0.01 * max(signal_range, 1e-12):
             warnings.append("weak_resonance")
+    local_rmse_ratios: list[float] = []
+    local_bias_ratios: list[float] = []
+    # Compare residuals close to resonances against off-resonance noise.
+    quiet_mask = np.ones(len(frequency), dtype=bool)
+    for _, center, width in peak_params:
+        quiet_mask &= np.abs(frequency - center) > max(3 * width, 3 * spacing)
+    quiet = residual[quiet_mask]
+    noise = float(np.std(quiet)) if len(quiet) >= 12 else float("nan")
+    for _, center, width in peak_params:
+        neighborhood = residual[np.abs(frequency - center) <= max(2 * width, 3 * spacing)]
+        if len(neighborhood) < 5 or not np.isfinite(noise) or noise <= 1e-10:
+            warnings.append("local_residual_unassessable")
+            continue
+        local_rmse_ratios.append(float(np.sqrt(np.mean(neighborhood**2)) / noise))
+        local_bias_ratios.append(float(abs(np.mean(neighborhood)) / noise))
+    max_local_rmse = max(local_rmse_ratios, default=None)
+    max_local_bias = max(local_bias_ratios, default=None)
+    if max_local_rmse is not None and max_local_rmse > 2.0:
+        warnings.append("resonance_local_residual_excess")
+    if max_local_bias is not None and max_local_bias > 1.0:
+        warnings.append("resonance_local_bias")
     if peaks == 2:
         separation = abs(peak_params[1][1] - peak_params[0][1]) * 1000
         if separation <= 2 * spacing * 1000:
@@ -108,4 +131,5 @@ def diagnose_fit(spectrum: OdmrSpectrum, fits: list[ResonanceFit]) -> FitDiagnos
         float(np.max(np.abs(residual))), lag1, delta,
         field(0, 1), field(1, 1), separation,
         field(0, 2, 1000), field(1, 2, 1000), field(0, 0), field(1, 0),
+        max_local_rmse, max_local_bias,
     )
