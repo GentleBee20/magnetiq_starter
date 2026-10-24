@@ -4,6 +4,68 @@ A reproducible, engineering-focused pipeline for real NV-center experimental dat
 The goal is explainable measurement quality assessment; reconstructed 3D current maps
 are **not** validated by the first spectroscopy dataset.
 
+## Experimental results and diagnostic examples
+
+The [public ODMR dataset](https://doi.org/10.5281/zenodo.14697917)
+contains 105 spectra in the completed full-archive evaluation. The
+**provisional spectral-fit** results were:
+
+| Fit-quality verdict | Spectra |
+| --- | ---: |
+| `FIT_OK` | 36 |
+| `REVIEW_REQUIRED` | 69 |
+| `FIT_FAILED` | 0 |
+
+Three reproducible examples illustrate *why* a residual-based review is
+useful. Their row numbers refer to the original 105-spectrum run; locate
+the measurement by source name if another run has a different order.
+
+| Spectrum | Model | Normalized RMSE | Other evidence | Verdict |
+| --- | --- | ---: | --- | --- |
+| Hole2 · 2023-05-23 03:01 · NV1 (row 1) | Double Lorentzian | 0.0607 | Lag-1 residual correlation 0.246; max local RMSE ratio 1.37 | `FIT_OK` |
+| Hole2 · 2023-05-23 17:17 · NV3 (row 2) | Double Lorentzian | 0.0588 | Lag-1 correlation 0.712; max local RMSE ratio 3.31 | `REVIEW_REQUIRED` |
+| Hole4 · 2023-07-30 00:39 · NV17 (row 45) | Baseline | — | No selected resonance | `REVIEW_REQUIRED` |
+
+**Important comparison:** the second measurement has a *smaller*
+global normalized fitting error than the first, yet shows excessive
+residual correlation and resonance-local mismatch. A low aggregate fit
+error alone does not establish an adequate spectral model.
+
+### Representative diagnostic figures
+
+The following plots come from the public experimental dataset and show
+measured normalized contrast, the selected fit, residuals and the
+provisional evaluation criteria. Shaded resonance windows mark regions
+used for inspection; they are **not confidence intervals**.
+
+| Fit passes provisional checks | Residual structure triggers review |
+| --- | --- |
+| ![Double-Lorentzian spectrum passing diagnostic checks](docs/figures/odmr_fit_ok.png) | ![Double-Lorentzian spectrum with structured and local residual mismatch](docs/figures/odmr_structured_residuals.png) |
+| **Hole2 NV1** — normalized RMSE 0.0607; no triggered warning. | **Hole2 NV3** — normalized RMSE 0.0588; lag-1 correlation 0.712 and local RMSE ratio 3.31 trigger review. |
+
+![Spectrum reviewed because a fitted linewidth is near a parameter constraint](docs/figures/odmr_linewidth_constraint.png)
+
+**A different failure mode — Hole3 NV6 (2023-05-08 08:45):**
+The selected double-Lorentzian fit is flagged
+`linewidth_near_constraint`. A visually plausible curve does not rule
+out an unstable or poorly identifiable narrow component; frequency
+sampling and fitting bounds warrant inspection.
+
+These are **fit-quality diagnostics**, not calibration, physical defect
+identification or measured model-classification accuracy.
+
+**View the actual experimental figures:** Run `magnetiq analyze` on
+the separately downloaded archive, open the generated
+`measurement_report.html`, and select **View fit plot** on rows
+1, 2 and 45. The matching `plots/*.png` files show the experimental
+spectra, fitted curves and residuals. Figures remain in the local,
+run-specific output directory; they have not been committed to Git.
+The [technical case study](docs/TECHNICAL_CASE_STUDY.md) explains
+the diagnostic reasoning in more detail.
+
+The statuses and thresholds are heuristic and **not** validated sensor
+accuracy, physical anomaly labels or semiconductor defect detections.
+
 ## Dataset
 
 [NV-center experiment, Zenodo DOI 10.5281/zenodo.14697917](https://doi.org/10.5281/zenodo.14697917).
