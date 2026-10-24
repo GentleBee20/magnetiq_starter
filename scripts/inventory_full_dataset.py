@@ -24,7 +24,7 @@ def _category(name: str) -> str:
 
 
 def _image_dimensions(data: bytes) -> list[int] | None:
-    if data[:8] == b"\\x89PNG\\r\\n\\x1a\\n" and len(data) >= 24:
+    if data[:8] == b"\x89PNG\r\n\x1a\n" and len(data) >= 24:
         return list(struct.unpack(">II", data[16:24]))
     return None
 
@@ -34,7 +34,7 @@ def _inspect_text(data: bytes) -> dict[str, Any]:
     lines = [line.strip() for line in sample.splitlines() if line.strip()]
     if not lines:
         return {"sample": "empty"}
-    delim = max((",", "\\t", ";"), key=lambda d: lines[0].count(d))
+    delim = max((",", "\t", ";"), key=lambda d: lines[0].count(d))
     parsed = list(csv.reader(lines[:15], delimiter=delim))
     header = parsed[0] if parsed else []
     numeric_lines = 0
@@ -46,10 +46,10 @@ def _inspect_text(data: bytes) -> dict[str, Any]:
                 numeric_lines += 1
         except ValueError:
             pass
-    units = sorted(set(re.findall(r"\\[[^\\]]{1,25}\\]", " ".join(lines[:8]))))
+    units = sorted(set(re.findall(r"\[[^\]]{1,25}\]", " ".join(lines[:8]))))
     return {
         "header_sample": lines[:4],
-        "delimiter": "tab" if delim == "\\t" else delim,
+        "delimiter": "tab" if delim == "\t" else delim,
         "columns_first_row": header[:30],
         "sample_numeric_rows": numeric_lines,
         "sample_row_widths": sorted(set(widths)),
@@ -140,8 +140,8 @@ def main() -> None:
     lines = [
         "# Scientific archive inventory",
         "",
-        f"Archive: \`{report['archive']}\`",
-        f"SHA-256: \`{report['sha256']}\`",
+        f"Archive: `{report['archive']}`",
+        f"SHA-256: `{report['sha256']}`",
         f"Entries including nested: {report['total_entries_including_nested']}",
         "",
         "## Dataset groups",
@@ -154,11 +154,11 @@ def main() -> None:
             {k: v for k, v in row.items() if k not in ("path", "category")},
             ensure_ascii=False,
         )
-        lines.append(f"- **{row['category']}** \`{row['path']}\`: {details}")
+        lines.append(f"- **{row['category']}** `{row['path']}`: {details}")
     lines += ["", "## Limitations", ""]
     lines += [f"- {value}" for value in report["limitations"]]
     (args.output_dir / "full_inventory.md").write_text(
-        "\\n".join(lines) + "\\n", encoding="utf-8"
+        "\n".join(lines) + "\n", encoding="utf-8"
     )
     print("Inventory saved:", args.output_dir / "full_inventory.md")
 
