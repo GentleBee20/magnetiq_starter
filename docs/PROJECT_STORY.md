@@ -72,24 +72,16 @@ Output: `reports/odmr/benchmarks/adequacy_candidates.csv`.
 - Longer-term magnetic-field/current reconstruction requires independent
   suitable spatially resolved data and physics-based validation.
 
-## How to present the work
+## Engineering summary
 
-**Situation:** Quantum sensing analysis can produce superficially credible
-fits without trustworthy evidence of model adequacy.
+The pipeline provides reproducible fit-quality diagnostics on a public
+105-spectrum ODMR dataset, with inspectable warning evidence, MLflow
+provenance and explicit distinctions between numerical model adequacy
+and validated physical accuracy. Fit-quality review coverage is not
+evidence of calibrated detection accuracy.
 
-**Action:** Built a testable Python pipeline; compared physical line-shape
-models, diagnosed residual structure, preserved MLflow experiments and made
-per-spectrum decisions inspectable.
-
-**Result:** Demonstrated reproducible fitting across 105 public spectra and
-identified cases whose residual patterns warrant additional scrutiny. Not
-yet a validated accuracy improvement.
-
-**Next:** Calibrate severity decisions and quantify uncertainty with
-synthetic challenges plus independently labelled reference measurements.
-
-This document deliberately separates **completed evidence** from
-**hypotheses** and **future commitments**.
+Further validation requires independently labelled reference
+measurements, defensible physical tolerances and uncertainty quantification.
 
 ## Benchmark checkpoint — 24 October 2026
 
