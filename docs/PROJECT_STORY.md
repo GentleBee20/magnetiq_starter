@@ -608,3 +608,14 @@ initialization; compare against the unchanged six-grid-period method;
 test clean false-selection rates with a selection method that accounts
 for period searching; and evaluate unrelated distortions before
 considering any production integration.
+
+## Continuous-period refinement and selection research — implementation
+
+Added research-only joint continuous optimization of the sinusoidal
+period (initialized from the existing candidate grid), a deliberately
+conservative extra-AICc-penalty selection experiment, new per-case
+development/held-out comparisons, and tests. See
+[period refinement protocol](PERIOD_REFINEMENT.md). The extra
+penalty of 8 is exploratory rather than a calibrated multiple-period
+search correction. No benchmark outcome is claimed until local or CI
+verification and held-out execution; production fitting/QC unchanged.
