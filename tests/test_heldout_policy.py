@@ -3,7 +3,9 @@
 from scripts.validate_adequacy_policy import classify, score, select_policy
 
 
-def row(accurate: bool, rmse: float, lag: float, status: str = "REVIEW_REQUIRED") -> dict[str, object]:
+def row(
+    accurate: bool, rmse: float, lag: float, status: str = "REVIEW_REQUIRED"
+) -> dict[str, object]:
     return {
         "centers_within_tolerance": accurate,
         "normalized_rmse": rmse,
