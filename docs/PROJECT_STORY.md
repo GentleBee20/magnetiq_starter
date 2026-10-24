@@ -389,3 +389,39 @@ successful calibration. The independent seeds still share the same
 synthetic generator and line-shape assumptions. Evaluate empirical
 coverage, failure-to-assess frequency, and differences between clean and
 oscillatory cases before proposing another uncertainty method.
+
+## Bootstrap calibration checkpoint — 24 October 2026
+
+Two local MLflow bootstrap-calibration runs compared raw versus
+mean-centered IID residual resampling.
+
+**Pilot** (seeds 20261224, 20261225, two draws per seed, 50 replicates):
+- Clean (n=4): center 1 coverage 1/4, center 2 4/4, joint 1/4.
+- Oscillation (n=8): center 1 coverage 3/8, center 2 0/8,
+  joint 0/8.
+- Raw and centered methods had identical inclusion outcomes.
+
+**Larger exploratory run** (seeds 20261224–20261226, four draws
+per seed, 100 replicates, MLflow run
+`fa6c366c4ae2451b9355b50b08ece51f`):
+- Clean (n=12): center 1 coverage **8/12 (66.7%)**;
+  center 2 **12/12 (100%)**; joint **8/12 (66.7%)**.
+- Oscillatory (n=24): center 1 **6/24 (25%)**;
+  center 2 **4/24 (16.7%)**; joint **0/24**.
+- Residual centering had **no change in coverage counts** for either
+  family; this does not imply identical numerical intervals. A model
+  with a fitted constant baseline can absorb a residual mean shift.
+
+These are marginal 95% percentile intervals combined into an
+uncalibrated joint-coverage check. The generator reuses latent
+parameters and noise within each seed/draw, so the 24 oscillatory
+conditions are not 24 independent draws. The nominal 95% level
+should not be used as an exact joint-coverage target. The low
+coverage warrants more research, **not a claim of calibrated
+uncertainty or a production failure rule**.
+
+**Next:** diagnose center-1 versus center-2 bias with per-case
+truth, point estimates, and interval endpoints; run a parametric
+bootstrap using the known independent Gaussian noise model as a
+correct-specification control; then test structured-noise
+strategies under held-out noise and oscillation regimes.
