@@ -34,3 +34,36 @@ Data, author-provided Fit, Envelope, and Data-minus-Fit residuals.
 
 Next: inspect complete 24-file output, verify the envelope definition against
 the authors' methods, and then design held-out synthetic tests.
+
+## Initial real-data review (24 files)
+
+The first run produced 24 rows: 12 Ramsey and 12 spin-echo measurements.
+The exploratory report flagged **5 Ramsey files** and **0 spin-echo files**:
+
+- Four Ramsey files: `structured_residuals_exploratory`.
+- One Ramsey file: `localized_residual_excess_exploratory`.
+
+Examples include No Hole/NV2 (`2022-10-01 21:21`) and Hole/NV6
+(`2022-11-06 22:19`), where pronounced residual drift or structure
+is visible. For Hole/NV2 (`2022-10-28 08:55`), localized residual
+error is flagged. Other unflagged plots can *also* exhibit nonzero
+residual bias or systematic excursions, meaning these exploratory
+flags are **not comprehensive quality labels**.
+
+Across the supplied figures, Ramsey signals have markedly differing
+absolute magnitudes (including ~1 and values in the tens/hundreds of
+thousands), while echo traces are commonly around 0.01–0.06.
+Do not compare their unnormalized errors or interpret `Envelope`
+as a statistical confidence interval.
+
+The displayed orange author-fit curves sometimes oscillate strongly
+while the measured blue data show residual drift. It is not possible
+to distinguish acquisition artifacts, fit misspecification, differing
+normalization or deliberate model choices from plots alone.
+Investigate the authors' model definitions and acquisition methods
+before attributing causes.
+
+**Priority for follow-up:** add signed residual bias and an early/late
+drift diagnostic, then test them on synthetic reference cases before
+assigning interpretation thresholds. Also examine the presence of
+strongly nonuniform tau sampling before using lag-based metrics.
