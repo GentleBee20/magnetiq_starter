@@ -341,3 +341,36 @@ the cases reuse the same generator and correlated distortions.
 distinguish clean from oscillatory failures, and estimate coverage with
 more seeds and repetitions before attempting bootstrap variants or
 changing production QC.
+
+## Stability v2 detailed CSV audit — 24 October 2026
+
+Analyzed the three user-supplied local run artifacts `center_stability.csv`,
+`restart_details.csv` and `bootstrap_coverage.csv`.
+
+**Restart objectives:** 72 of 72 attempts converged; 67/72 met
+RSS <= 1.01 times the reference RSS; no solutions were flagged near
+parameter bounds. For `000_oscillation_2`, full-restart center range
+was 11.952 MHz while six near-optimal starts spanned only
+0.00000135 MHz; the two worse starts had RSS ratios 1.321 and 1.326.
+For `001_oscillation_2`, full-restart range 5.313 MHz became
+0.0000374 MHz across five near-optimal starts; three worse starts
+had RSS ratios 1.015, 1.052 and 1.015.
+
+**Stable is not accurate:** `001_oscillation_2` nevertheless has
+2.227 MHz maximum center error. `002_oscillation_2` has 1.298 MHz
+error despite all eight restarts converging to nearly identical
+center estimates (range about 0.000112 MHz).
+
+**Bootstrap joint coverage:** 1/4 clean cases, 0/8 oscillatory cases;
+1/12 overall. Thus even clean spectra failed joint coverage in this
+very small smoke test. This cannot be assigned solely to correlated
+residuals without further diagnosis. Nominal marginal 95% intervals do
+not imply exact 95% joint coverage, and 20 replicates per spectrum are
+too few for reliable percentile estimation.
+
+**Next:** independently evaluate marginal coverage for each resonance,
+try substantially more bootstrap replicates, test residual-centering
+and sampling assumptions, and assess uncertainty calibration over
+many independent draws and shifted noise/distortion regimes. Do not
+promote bootstrap widths or restart stability to production accuracy
+claims.
