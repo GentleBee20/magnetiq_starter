@@ -9,14 +9,20 @@ from dataclasses import asdict
 from pathlib import Path
 from zipfile import ZipFile
 
+import mlflow
+
 from magnetiq.data.odmr import OdmrSpectrum, list_odmr_members, read_odmr
 from magnetiq.logging_config import configure_logging
 from magnetiq.processing.diagnostics import choose_fit, diagnose_fit
 from magnetiq.processing.resonance import fit_spectrum
 from magnetiq.reporting.fit_plots import plot_batch, plot_fit
-from magnetiq.tracking import file_sha256, new_run_location, summarize_rows, tracked_run, write_manifest
-
-import mlflow
+from magnetiq.tracking import (
+    file_sha256,
+    new_run_location,
+    summarize_rows,
+    tracked_run,
+    write_manifest,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -44,8 +50,13 @@ def main() -> None:
     logger.info("MLflow run %s | directory %s", run_id, location.output_dir)
 
 
-def analyze_and_log(spectra: list[OdmrSpectrum], output_dir: Path, run_id: str,
-                    tracking_uri: str, archive: Path) -> None:
+def analyze_and_log(
+    spectra: list[OdmrSpectrum],
+    output_dir: Path,
+    run_id: str,
+    tracking_uri: str,
+    archive: Path,
+) -> None:
     """Create deterministic reports inside a uniquely allocated run directory."""
     results = []
     for index, spectrum in enumerate(spectra, start=1):
@@ -72,7 +83,9 @@ def analyze_and_log(spectra: list[OdmrSpectrum], output_dir: Path, run_id: str,
     metrics = summarize_rows([asdict(result) for result in results])
     mlflow.log_metrics(metrics)
     write_manifest(
-        output_dir / "manifest.json", run_id=run_id, tracking_uri=tracking_uri,
+        output_dir / "manifest.json",
+        run_id=run_id,
+        tracking_uri=tracking_uri,
         archive_sha256=file_sha256(archive),
     )
     logger.info("Wrote diagnostics for %d spectra to %s", len(results), output_dir)
