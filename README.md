@@ -144,3 +144,20 @@ improvement; inspect reason codes and synthetic/reference validation.
 
 To connect to a separate MLflow server, provide `--tracking-uri` or
 `MLFLOW_TRACKING_URI`. Keep experiment data and secrets out of Git.
+
+## Development story and model-adequacy benchmark
+
+See [the project evidence ledger and roadmap](docs/PROJECT_STORY.md) for the
+chronological story, verified achievements, limitations, and planned research.
+
+An **experimental** candidate policy for severe model mismatch is implemented
+separately from the production diagnostics. It does not change existing statuses.
+To run its initial, deliberately small synthetic smoke benchmark:
+
+```powershell
+python scripts\benchmark_adequacy.py
+```
+
+The generated `reports/odmr/benchmarks/adequacy_candidates.csv` contains
+constructed labels, existing QC statuses, candidate statuses and diagnostic
+values. It is not a calibrated measurement-quality benchmark.
