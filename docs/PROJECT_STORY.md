@@ -234,3 +234,31 @@ to production. Next: examine the ten false failures individually,
 test shifts in distortion frequency and noise/SNR, use multiple
 independent held-out seeds, and separately define model adequacy
 versus center-estimation accuracy.
+
+## Held-out per-case audit — false failures
+
+Inspected the complete 192-row `holdout_cases.csv` for run
+`ab2fe4ccc1674d78a2e2f2fe885d1fe5`.
+
+- Exactly **14 inaccurate fits** (>0.5 MHz maximum center error) were
+  flagged `FIT_FAILED`, and **10 accurate fits** (<=0.5 MHz) were also
+  flagged `FIT_FAILED`. Another 125 accurate fits remained `FIT_OK`;
+  43 accurate fits remained in review.
+- All 24 failures occurred in the **oscillation** family. Among 12
+  severity-1 oscillations, four were inaccurate and eight retained
+  center accuracy; the tuned gate failed all 12. Among 12 severity-2
+  oscillations, ten were inaccurate and two retained accuracy; the
+  tuned gate again failed all 12.
+- Example false failure: `000_oscillation_1` has 0.125 MHz maximum
+  center error, nRMSE 0.114, |lag-1| 0.987. Example correct failure
+  `005_oscillation_2` has 10.641 MHz center error, nRMSE 0.242,
+  |lag-1| 0.993.
+- The gate is therefore mostly detecting one strong structured-noise
+  family, **not directly measuring parameter reliability**. Structured
+  residuals can coexist with accurate centers.
+
+**Next:** separate model-mismatch evidence from center-accuracy
+conclusions; investigate extreme center misassignment, expand
+stress tests beyond fixed sinusoidal perturbations, and evaluate
+group-aware holdouts plus calibration of uncertainty estimates.
+Production decisions are unchanged.
