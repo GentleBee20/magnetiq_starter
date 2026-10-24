@@ -57,18 +57,37 @@ def main() -> None:
             chosen = choose_fit([fit_spectrum(spectrum, order) for order in (0, 1, 2)])
             truth = sorted((center_1, center_2))
             family = "clean" if "_clean_" in name else "oscillation"
-            for centered in (False, True):
+            for method in ("residual_raw", "residual_centered", "gaussian_known_noise"):
+                centered = method == "residual_centered"
                 stability = center_stability(
                     spectrum, chosen, seed=seed + case_index,
                     bootstrap_trials=args.bootstrap, multistart_trials=args.starts,
                     center_residuals=centered,
+                    gaussian_noise_std=0.0006 if method == "gaussian_known_noise" else None,
                 )
                 one = stability.bootstrap_interval_1_ghz
                 two = stability.bootstrap_interval_2_ghz
                 assessable = one is not None and two is not None
                 covered_1 = bool(one is not None and one[0] <= truth[0] <= one[1])
                 covered_2 = bool(two is not None and two[0] <= truth[1] <= two[1])
+                estimates = (
+                    sorted((chosen.parameters[3], chosen.parameters[6]))
+                    if chosen.model == "double" and chosen.success else [float("nan")] * 2
+                )
                 rows.append({
+                    "method": method,
+                    "truth_1_ghz": truth[0], "truth_2_ghz": truth[1],
+                    "estimated_1_ghz": estimates[0], "estimated_2_ghz": estimates[1],
+                    "error_1_mhz": (estimates[0] - truth[0]) * 1000,
+                    "error_2_mhz": (estimates[1] - truth[1]) * 1000,
+                    "interval_1_low_ghz": one[0] if one else None,
+                    "interval_1_high_ghz": one[1] if one else None,
+                    "interval_2_low_ghz": two[0] if two else None,
+                    "interval_2_high_ghz": two[1] if two else None,
+                    "width_1_mhz": (one[1] - one[0]) * 1000 if one else None,
+                    "width_2_mhz": (two[1] - two[0]) * 1000 if two else None,
+                    "fitted_width_1_mhz": chosen.parameters[4] * 1000 if len(chosen.parameters) == 8 else None,
+                    "fitted_width_2_mhz": chosen.parameters[7] * 1000 if len(chosen.parameters) == 8 else None,
                     "seed": seed, "case": name, "family": family,
                     "centered_residuals": centered, "model": chosen.model,
                     "assessable": assessable, "covered_1": covered_1 if assessable else None,
@@ -100,12 +119,12 @@ def main() -> None:
             "starts": args.starts,
         })
         for family in ("clean", "oscillation"):
-            for centered in (False, True):
+            for method in ("residual_raw", "residual_centered", "gaussian_known_noise"):
                 group = [
                     row for row in rows
-                    if row["family"] == family and row["centered_residuals"] == centered
+                    if row["family"] == family and row["method"] == method
                 ]
-                label = f"{family}_{'centered' if centered else 'raw'}"
+                label = f"{family}_{method}"
                 metrics = summarize(group)
                 summary[label] = metrics
                 for name, value in metrics.items():
