@@ -33,10 +33,7 @@ def assess_candidate(diagnosis: FitDiagnostics) -> AdequacyAssessment:
     reasons: list[str] = []
     if np.isfinite(diagnosis.normalized_rmse) and diagnosis.normalized_rmse > 0.20:
         reasons.append("severe_global_relative_rmse")
-    if (
-        diagnosis.max_local_rmse_ratio is not None
-        and diagnosis.max_local_rmse_ratio > 4.0
-    ):
+    if diagnosis.max_local_rmse_ratio is not None and diagnosis.max_local_rmse_ratio > 4.0:
         reasons.append("severe_resonance_local_mismatch")
     if (
         np.isfinite(diagnosis.lag1_residual_correlation)
