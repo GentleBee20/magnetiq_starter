@@ -8,11 +8,11 @@ import os
 import platform
 import subprocess
 import uuid
+from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Iterator
 
 import mlflow
 import numpy as np
