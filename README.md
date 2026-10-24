@@ -161,3 +161,23 @@ python scripts\benchmark_adequacy.py
 The generated `reports/odmr/benchmarks/adequacy_candidates.csv` contains
 constructed labels, existing QC statuses, candidate statuses and diagnostic
 values. It is not a calibrated measurement-quality benchmark.
+
+## Installed MagnetIQ MVP command
+
+Install the project in the active Python environment, including developer checks:
+
+```powershell
+python -m pip install -e ".[dev]"
+magnetiq analyze "data\raw\Dataset_10.5281zenodo.14697917.zip" --run-name "mvp-demo"
+```
+
+By default the installed command processes all ODMR spectra in the archive and
+creates a unique experiment directory in `reports/odmr/experiments/runs/`.
+It writes `measurement_report.html`, `measurement_report.json`,
+`fit_diagnostics.csv`, `summary.png`, `plots/` and `manifest.json`.
+Use `magnetiq analyze --help` for available options.
+
+All verdicts are **provisional ODMR spectral-fit diagnostics**; they do not
+constitute calibrated hardware measurements, current-map validation or
+semiconductor fault detection.
+
