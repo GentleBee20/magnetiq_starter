@@ -273,3 +273,33 @@ test whether fitted-center stability helps separate accurate-but-poorly
 modelled spectra from inaccurate center estimates. It deliberately does
 not change production status rules. **No experimental benchmark
 results or validated coverage claims have been recorded yet.**
+
+## Center-stability audit — 24 October 2026
+
+Analyzed the first nine-case synthetic center-stability CSV from local MLflow
+run `a5603d3aac3e4db082121c88f00973ab`, seeded 20261124, 20 IID residual
+bootstrap replicates and eight jittered optimizer restarts per case.
+All 180 bootstrap refits and 72 restarts converged. By an *illustrative*
+0.5 MHz maximum center-error tolerance, six spectra were accurate and three
+were inaccurate.
+
+| Case | Actual center error (MHz) | Bootstrap 95% full width (MHz) | Multi-start center range (MHz) |
+| --- | ---: | ---: | ---: |
+| 000_clean_0 | 0.015 | 0.020 | near zero |
+| 000_oscillation_2 | 0.172 | 0.250 | 11.952 |
+| 001_oscillation_2 | 2.227 | 0.569 | 5.313 |
+| 002_oscillation_1 | 0.513 | 0.241 | 0.000012 |
+| 002_oscillation_2 | 1.298 | 0.704 | 0.000112 |
+
+**Key finding:** convergence and agreement across optimizer starts are not
+evidence of center accuracy. The two inaccurate `002` cases show vanishingly
+small multi-start ranges, whereas the accurate `000_oscillation_2` case
+shows widely differing solutions. The bootstrap full interval widths are
+not coverage probabilities or estimates of bias; IID residual resampling
+is questionable in structured oscillatory residuals.
+
+**Next:** inspect individual restart parameter vectors and objective values;
+evaluate only near-optimal solutions rather than all converged ones, check for
+peak permutations or pathological boundaries, and quantify bootstrap
+coverage using larger synthetic, group-held-out datasets. Production QC
+remains unchanged.
